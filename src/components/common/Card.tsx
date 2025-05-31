@@ -5,6 +5,7 @@ import { theme } from '../../styles/theme';
 interface CardProps {
   children: React.ReactNode;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 const CardContainer = styled.div<{ clickable?: boolean }>`
@@ -22,9 +23,9 @@ const CardContainer = styled.div<{ clickable?: boolean }>`
   `}
 `;
 
-export const Card: React.FC<CardProps> = ({ children, onClick }) => {
+export const Card: React.FC<CardProps> = ({ children, onClick, style }) => {
   return (
-    <CardContainer clickable={!!onClick} onClick={onClick}>
+    <CardContainer clickable={!!onClick} onClick={onClick} style={style}>
       {children}
     </CardContainer>
   );

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from './styles/theme';
 import ReadingRecord from './pages/ReadingRecord';
+import ReadingRecordDetail from './pages/ReadingRecordDetail';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -136,6 +137,7 @@ function App() {
               </HomePage>
             } />
             <Route path="/reading-record" element={<ReadingRecord />} />
+            <Route path="/reading-record/:id" element={<ReadingRecordDetail />} />
           </Routes>
         </MainContent>
       </AppContainer>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { ReadingRecord as ReadingRecordType } from '../types/reading';
@@ -50,6 +51,8 @@ const RecordDate = styled.p`
 `;
 
 const ReadingRecord: React.FC = () => {
+  const navigate = useNavigate();
+  
   // 임시 데이터
   const records: ReadingRecordType[] = [
     {
@@ -71,6 +74,10 @@ const ReadingRecord: React.FC = () => {
     console.log('Add new record');
   };
 
+  const handleCardClick = (id: number) => {
+    navigate(`/reading-record/${id}`);
+  };
+
   return (
     <ReadingRecordContainer>
       <Header>
@@ -80,7 +87,11 @@ const ReadingRecord: React.FC = () => {
 
       <RecordList>
         {records.map((record) => (
-          <Card key={record.id}>
+          <Card 
+            key={record.id} 
+            onClick={() => handleCardClick(record.id)}
+            style={{ cursor: 'pointer' }}
+          >
             <BookTitle>{record.title}</BookTitle>
             <BookAuthor>{record.author}</BookAuthor>
             <RecordDate>읽은 날짜: {record.date}</RecordDate>
