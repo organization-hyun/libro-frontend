@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
@@ -67,10 +67,17 @@ const Section = styled.section`
   margin-bottom: ${theme.spacing.xl};
 `;
 
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${theme.spacing.md};
+`;
+
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.md};
+  font-weight: 600;
 `;
 
 const Content = styled.div`
@@ -78,6 +85,136 @@ const Content = styled.div`
   padding: ${theme.spacing.lg};
   border-radius: ${theme.borderRadius.md};
   box-shadow: ${theme.shadows.sm};
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const RecordList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+  margin-bottom: ${theme.spacing.xl};
+  flex: 1;
+`;
+
+const RecordItem = styled.div`
+  padding: ${theme.spacing.md};
+  background: ${theme.colors.background.light};
+  border-radius: ${theme.borderRadius.sm};
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transition: transform ${theme.transitions.default};
+
+  &:hover {
+    transform: translateX(4px);
+  }
+`;
+
+const AddButtonWrapper = styled.div`
+  margin-top: auto;
+  padding-top: ${theme.spacing.lg};
+  border-top: 1px solid ${theme.colors.border};
+  display: flex;
+  justify-content: center;
+`;
+
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  border: none;
+  border-radius: ${theme.borderRadius.sm};
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all ${theme.transitions.default};
+
+  ${({ variant = 'secondary' }) =>
+    variant === 'primary'
+      ? `
+    background: ${theme.colors.primary};
+    color: white;
+    &:hover {
+      background: ${theme.colors.primaryDark};
+    }
+    &:active {
+      transform: translateY(1px);
+    }
+  `
+      : `
+    background: transparent;
+    color: ${theme.colors.text.secondary};
+    &:hover {
+      color: ${theme.colors.text.primary};
+    }
+    &:active {
+      transform: translateY(1px);
+    }
+  `}
+`;
+
+const AddButton = styled(Button)`
+  width: 100%;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${theme.spacing.xs};
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.md};
+  font-weight: 600;
+  box-shadow: ${theme.shadows.sm};
+`;
+
+const RecordForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+  animation: fadeIn 0.2s ease-in-out;
+  flex: 1;
+  background: ${theme.colors.background.white};
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  min-height: 150px;
+  padding: ${theme.spacing.md};
+  border: none;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+  background: transparent;
+  flex: 1;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: ${theme.colors.text.light};
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: ${theme.spacing.sm};
+  margin-top: auto;
+  padding-top: ${theme.spacing.md};
+  border-top: 1px solid ${theme.colors.border};
 `;
 
 const EmptyMessage = styled.p`
@@ -86,9 +223,18 @@ const EmptyMessage = styled.p`
   padding: ${theme.spacing.xl} 0;
 `;
 
+interface Record {
+  id: number;
+  content: string;
+  createdAt: string;
+}
+
 const ReadingRecordDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [records, setRecords] = useState<Record[]>([]);
+  const [newRecord, setNewRecord] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   // TODO: API 연동 후 실제 데이터로 교체
   const record: ReadingRecordType = {
@@ -96,6 +242,26 @@ const ReadingRecordDetail: React.FC = () => {
     title: '데미안',
     author: '헤르만 헤세',
     date: '2024-03-15',
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRecord.trim()) return;
+
+    const record: Record = {
+      id: Date.now(),
+      content: newRecord.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    setRecords((prev) => [...prev, record]);
+    setNewRecord('');
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setNewRecord('');
+    setIsEditing(false);
   };
 
   return (
@@ -111,9 +277,45 @@ const ReadingRecordDetail: React.FC = () => {
       </Header>
 
       <Section>
-        <SectionTitle>기록</SectionTitle>
+        <SectionHeader>
+          <SectionTitle>기록</SectionTitle>
+        </SectionHeader>
         <Content>
-          <EmptyMessage>아직 작성된 기록이 없습니다.</EmptyMessage>
+          {isEditing ? (
+            <RecordForm onSubmit={handleSubmit}>
+              <TextArea
+                value={newRecord}
+                onChange={(e) => setNewRecord(e.target.value)}
+                placeholder="독서 기록을 작성해보세요..."
+                autoFocus
+              />
+              <ButtonGroup>
+                <Button type="button" onClick={handleCancel}>
+                  취소
+                </Button>
+                <Button type="submit" variant="primary">
+                  저장
+                </Button>
+              </ButtonGroup>
+            </RecordForm>
+          ) : (
+            <>
+              {records.length > 0 ? (
+                <RecordList>
+                  {records.map((record) => (
+                    <RecordItem key={record.id}>{record.content}</RecordItem>
+                  ))}
+                </RecordList>
+              ) : (
+                <EmptyMessage>아직 작성된 기록이 없습니다.</EmptyMessage>
+              )}
+              <AddButtonWrapper>
+                <AddButton onClick={() => setIsEditing(true)}>
+                  + 기록 추가
+                </AddButton>
+              </AddButtonWrapper>
+            </>
+          )}
         </Content>
       </Section>
     </DetailContainer>

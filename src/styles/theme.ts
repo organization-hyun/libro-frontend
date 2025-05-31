@@ -1,6 +1,7 @@
 export const theme = {
   colors: {
     primary: '#007bff',
+    primaryDark: '#0056b3',
     text: {
       primary: '#333',
       secondary: '#666',
@@ -9,7 +10,9 @@ export const theme = {
     background: {
       main: '#f5f5f5',
       white: '#ffffff',
+      light: '#fafafa',
     },
+    border: '#e0e0e0',
   },
   spacing: {
     xs: '0.5rem',
