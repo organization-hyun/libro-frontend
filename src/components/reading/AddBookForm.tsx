@@ -64,10 +64,10 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
     }
   `
       : `
-    background: ${theme.colors.background.gray};
+    background: ${theme.colors.background.main};
     color: ${theme.colors.text.primary};
     &:hover {
-      background: ${theme.colors.background.grayDark};
+      background: ${theme.colors.background.light};
     }
   `}
 `;
