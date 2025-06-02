@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { ReadingRecord as ReadingRecordType } from '../types/reading';
+import api from '@api/config';
 
 const DetailContainer = styled.div`
   padding: ${theme.spacing.lg};
@@ -235,14 +236,55 @@ const ReadingRecordDetail: React.FC = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [newRecord, setNewRecord] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [book, setBook] = useState<ReadingRecordType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // TODO: API 연동 후 실제 데이터로 교체
-  const record: ReadingRecordType = {
-    id: Number(id),
-    title: '데미안',
-    author: '헤르만 헤세',
-    date: '2024-03-15',
-  };
+  useEffect(() => {
+    const fetchBookDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get(`/api/books/${id}`);
+        setBook(response.data);
+        setError(null);
+      } catch (err) {
+        setError('도서 정보를 불러오는데 실패했습니다.');
+        console.error('Error fetching book details:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchBookDetails();
+    }
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <DetailContainer>
+        <Header>
+          <BackButton onClick={() => navigate('/reading-record')}>
+            ← 돌아가기
+          </BackButton>
+        </Header>
+        <div>로딩 중...</div>
+      </DetailContainer>
+    );
+  }
+
+  if (error || !book) {
+    return (
+      <DetailContainer>
+        <Header>
+          <BackButton onClick={() => navigate('/reading-record')}>
+            ← 돌아가기
+          </BackButton>
+        </Header>
+        <div style={{ color: 'red' }}>{error || '도서를 찾을 수 없습니다.'}</div>
+      </DetailContainer>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,8 +313,8 @@ const ReadingRecordDetail: React.FC = () => {
           ← 돌아가기
         </BackButton>
         <BookInfo>
-          <BookTitle>{record.title}</BookTitle>
-          <BookAuthor>{record.author}</BookAuthor>
+          <BookTitle>{book.title}</BookTitle>
+          <BookAuthor>{book.author}</BookAuthor>
         </BookInfo>
       </Header>
 
