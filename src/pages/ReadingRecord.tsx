@@ -124,13 +124,28 @@ const ReadingRecord: React.FC = () => {
     fetchBooks();
   }, []);
 
-  const handleAddBook = (bookData: { title: string; author: string }) => {
-    const newBook: Book = {
-      id: Date.now(),
-      ...bookData,
-    };
-    setBooks([...books, newBook]);
-    setIsAddBookModalOpen(false);
+  const handleAddBook = async (bookData: { title: string; author: string }) => {
+    try {
+      // 새로운 책 생성
+      const response = await api.post('/api/books', {
+        userId: 1, // TODO: 실제 사용자 ID로 변경 필요
+        title: bookData.title,
+        author: bookData.author
+      });
+      
+      // 프론트엔드에서 알고 있는 데이터와 서버에서 받은 ID를 조합
+      const newBook: Book = {
+        id: response.data.id,
+        title: bookData.title,
+        author: bookData.author
+      };
+      
+      setBooks([...books, newBook]);
+      setIsAddBookModalOpen(false);
+    } catch (err) {
+      console.error('Error adding book:', err);
+      setError('도서 추가에 실패했습니다.');
+    }
   };
 
   const handleBookClick = (bookId: number) => {
