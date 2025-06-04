@@ -36,10 +36,57 @@ const BookCard = styled.div`
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-height: 200px;
+  position: relative;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: ${theme.shadows.md};
+  }
+`;
+
+const BookContent = styled.div`
+  flex: 1;
+`;
+
+const BookActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: ${theme.spacing.md};
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  ${BookCard}:hover & {
+    opacity: 1;
+  }
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: ${theme.spacing.sm};
+  right: ${theme.spacing.sm};
+  background: #8c8c8c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  ${BookCard}:hover & {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  &:hover {
+    background: #666666;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 `;
 
@@ -93,6 +140,64 @@ const BookAuthor = styled.p`
   margin-bottom: ${theme.spacing.sm};
 `;
 
+const Toast = styled.div<{ show: boolean }>`
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(${props => props.show ? '0' : '100px'});
+  background: ${theme.colors.background.white};
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.md};
+  box-shadow: ${theme.shadows.md};
+  color: ${theme.colors.text.primary};
+  transition: transform 0.3s ease;
+  z-index: 1000;
+`;
+
+const ConfirmModal = styled(Modal)`
+  .modal-content {
+    max-width: 400px;
+  }
+`;
+
+const ConfirmMessage = styled.p`
+  margin: ${theme.spacing.lg} 0;
+  text-align: center;
+  color: ${theme.colors.text.primary};
+  font-size: 1.1rem;
+  line-height: 1.5;
+`;
+
+const ConfirmButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: ${theme.spacing.md};
+  margin-top: ${theme.spacing.lg};
+`;
+
+const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.sm};
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  
+  ${props => props.variant === 'primary' ? `
+    background: ${theme.colors.primary};
+    color: white;
+    &:hover {
+      background: ${theme.colors.primaryDark};
+    }
+  ` : `
+    background: ${theme.colors.background.light};
+    color: ${theme.colors.text.primary};
+    &:hover {
+      background: ${theme.colors.background.main};
+    }
+  `}
+`;
+
 interface Book {
   id: number;
   title: string;
@@ -105,6 +210,17 @@ const ReadingRecord: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
+    isOpen: boolean;
+    bookId: number | null;
+    bookTitle: string;
+  }>({
+    isOpen: false,
+    bookId: null,
+    bookTitle: ''
+  });
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -152,6 +268,25 @@ const ReadingRecord: React.FC = () => {
     navigate(`/reading-record/${bookId}`);
   };
 
+  const handleDeleteBook = async (bookId: number, bookTitle: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!window.confirm(`"${bookTitle}"을(를) 정말로 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/api/books/${bookId}`);
+      setBooks(books.filter(book => book.id !== bookId));
+      setToastMessage(`"${bookTitle}"이(가) 삭제되었습니다.`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      console.error('Error deleting book:', err);
+      setError('도서 삭제에 실패했습니다.');
+    }
+  };
+
   if (isLoading) {
     return (
       <Container>
@@ -183,6 +318,7 @@ const ReadingRecord: React.FC = () => {
       <BookGrid>
         {books.map((book) => (
           <BookCard key={book.id} onClick={() => handleBookClick(book.id)}>
+            <DeleteButton onClick={(e) => handleDeleteBook(book.id, book.title, e)}>×</DeleteButton>
             <BookTitle>{book.title}</BookTitle>
             <BookAuthor>{book.author}</BookAuthor>
           </BookCard>
@@ -203,6 +339,10 @@ const ReadingRecord: React.FC = () => {
           onCancel={() => setIsAddBookModalOpen(false)}
         />
       </Modal>
+
+      <Toast show={showToast}>
+        {toastMessage}
+      </Toast>
     </Container>
   );
 };
