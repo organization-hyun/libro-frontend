@@ -286,19 +286,28 @@ const ReadingRecordDetail: React.FC = () => {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRecord.trim()) return;
 
-    const record: Record = {
-      id: Date.now(),
-      content: newRecord.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const response = await api.post(`/api/books/${id}/note`, {
+        content: newRecord.trim()
+      });
 
-    setRecords((prev) => [...prev, record]);
-    setNewRecord('');
-    setIsEditing(false);
+      const record: Record = {
+        id: response.data.id,
+        content: newRecord.trim(),
+        createdAt: new Date().toISOString(),
+      };
+
+      setRecords((prev) => [...prev, record]);
+      setNewRecord('');
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Error saving reading note:', err);
+      // TODO: Add error handling UI feedback
+    }
   };
 
   const handleCancel = () => {
