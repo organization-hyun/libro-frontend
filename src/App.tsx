@@ -1,8 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from './styles/theme';
 import ReadingRecord from './pages/ReadingRecord';
 import ReadingRecordDetail from './pages/ReadingRecordDetail';
+import Login from './pages/Login';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -101,46 +104,64 @@ const FeatureDescription = styled.p`
 
 function App() {
   return (
-    <Router>
-      <AppContainer>
-        <Header>
-          <Nav>
-            <Logo to="/">LIBRO</Logo>
-            <NavLinks>
-              <NavLink to="/reading-record">독서 기록</NavLink>
-              <NavLink to="/reading-group">독서 모임</NavLink>
-            </NavLinks>
-          </Nav>
-        </Header>
+    <AuthProvider>
+      <Router>
+        <AppContainer>
+          <Header>
+            <Nav>
+              <Logo to="/">LIBRO</Logo>
+              <NavLinks>
+                <NavLink to="/reading-record">독서 기록</NavLink>
+                <NavLink to="/reading-group">독서 모임</NavLink>
+              </NavLinks>
+            </Nav>
+          </Header>
 
-        <MainContent>
-          <Routes>
-            <Route path="/" element={
-              <HomePage>
-                <Title>Welcome to LIBRO</Title>
-                <Subtitle>당신의 독서 여정을 기록하고, 함께 나누세요</Subtitle>
-                <Features>
-                  <FeatureItem>
-                    <FeatureTitle>📝 독서 기록</FeatureTitle>
-                    <FeatureDescription>
-                      읽은 책과 독서 활동을 체계적으로 기록하고 관리하세요
-                    </FeatureDescription>
-                  </FeatureItem>
-                  <FeatureItem>
-                    <FeatureTitle>👥 독서 모임</FeatureTitle>
-                    <FeatureDescription>
-                      관심사가 비슷한 독자들과 함께 독서 모임을 만들어보세요
-                    </FeatureDescription>
-                  </FeatureItem>
-                </Features>
-              </HomePage>
-            } />
-            <Route path="/reading-record" element={<ReadingRecord />} />
-            <Route path="/reading-record/:id" element={<ReadingRecordDetail />} />
-          </Routes>
-        </MainContent>
-      </AppContainer>
-    </Router>
+          <MainContent>
+            <Routes>
+              <Route path="/" element={
+                <HomePage>
+                  <Title>Welcome to LIBRO</Title>
+                  <Subtitle>당신의 독서 여정을 기록하고, 함께 나누세요</Subtitle>
+                  <Features>
+                    <FeatureItem>
+                      <FeatureTitle>📝 독서 기록</FeatureTitle>
+                      <FeatureDescription>
+                        읽은 책과 독서 활동을 체계적으로 기록하고 관리하세요
+                      </FeatureDescription>
+                    </FeatureItem>
+                    <FeatureItem>
+                      <FeatureTitle>👥 독서 모임</FeatureTitle>
+                      <FeatureDescription>
+                        관심사가 비슷한 독자들과 함께 독서 모임을 만들어보세요
+                      </FeatureDescription>
+                    </FeatureItem>
+                  </Features>
+                </HomePage>
+              } />
+              <Route path="/login" element={<Login />} />
+              <Route 
+                path="/reading-record" 
+                element={
+                  <ProtectedRoute>
+                    <ReadingRecord />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/reading-record/:id" 
+                element={
+                  <ProtectedRoute>
+                    <ReadingRecordDetail />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </MainContent>
+        </AppContainer>
+      </Router>
+    </AuthProvider>
   );
 }
 
