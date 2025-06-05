@@ -255,8 +255,18 @@ const ReadingRecordDetail: React.FC = () => {
       }
     };
 
+    const fetchReadingNotes = async () => {
+      try {
+        const response = await api.get(`/api/books/${id}/notes`);
+        setRecords(response.data);
+      } catch (err) {
+        console.error('Error fetching reading notes:', err);
+      }
+    };
+
     if (id) {
       fetchBookDetails();
+      fetchReadingNotes();
     }
   }, [id]);
 
