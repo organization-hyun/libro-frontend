@@ -226,7 +226,7 @@ const ReadingRecord: React.FC = () => {
     const fetchBooks = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/api/books?userId=1');
+        const response = await api.get('/api/books');
         setBooks(response.data);
         setError(null);
       } catch (err) {
