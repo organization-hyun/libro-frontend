@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// baseURL에 '/api'를 설정하고, 실제 API 호출 시에는 나머지 경로만 사용
+// ex) /auth/login, /books, /books/1
+const baseURL = '/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },

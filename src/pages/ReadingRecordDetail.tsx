@@ -244,7 +244,7 @@ const ReadingRecordDetail: React.FC = () => {
     const fetchBookDetails = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get(`/api/books/${id}`);
+        const response = await api.get(`/books/${id}`);
         setBook(response.data);
         setError(null);
       } catch (err) {
@@ -257,7 +257,7 @@ const ReadingRecordDetail: React.FC = () => {
 
     const fetchReadingNotes = async () => {
       try {
-        const response = await api.get(`/api/books/${id}/notes`);
+        const response = await api.get(`/books/${id}/notes`);
         setRecords(response.data);
       } catch (err) {
         console.error('Error fetching reading notes:', err);
@@ -301,7 +301,7 @@ const ReadingRecordDetail: React.FC = () => {
     if (!newRecord.trim()) return;
 
     try {
-      const response = await api.post(`/api/books/${id}/note`, {
+      const response = await api.post(`/books/${id}/note`, {
         content: newRecord.trim()
       });
 

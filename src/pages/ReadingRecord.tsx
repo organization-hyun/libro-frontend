@@ -157,7 +157,7 @@ const ReadingRecord: React.FC = () => {
     const fetchBooks = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/api/books');
+        const response = await api.get('/books');
         setBooks(response.data);
         setError(null);
       } catch (err) {
@@ -174,7 +174,7 @@ const ReadingRecord: React.FC = () => {
   const handleAddBook = async (bookData: { title: string; author: string }) => {
     try {
       // 새로운 책 생성
-      const response = await api.post('/api/books', {
+      const response = await api.post('/books', {
         userId: 1, // TODO: 실제 사용자 ID로 변경 필요
         title: bookData.title,
         author: bookData.author
@@ -207,7 +207,7 @@ const ReadingRecord: React.FC = () => {
     }
 
     try {
-      await api.delete(`/api/books/${bookId}`);
+      await api.delete(`/books/${bookId}`);
       setBooks(books.filter(book => book.id !== bookId));
       setToastMessage(`"${bookTitle}"이(가) 삭제되었습니다.`);
       setShowToast(true);
