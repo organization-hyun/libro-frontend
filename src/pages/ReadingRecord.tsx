@@ -44,22 +44,6 @@ const BookCard = styled.div`
   }
 `;
 
-const BookContent = styled.div`
-  flex: 1;
-`;
-
-const BookActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: ${theme.spacing.md};
-  opacity: 0;
-  transition: opacity 0.2s ease;
-
-  ${BookCard}:hover & {
-    opacity: 1;
-  }
-`;
-
 const DeleteButton = styled.button`
   position: absolute;
   top: ${theme.spacing.sm};
@@ -154,50 +138,6 @@ const Toast = styled.div<{ show: boolean }>`
   z-index: 1000;
 `;
 
-const ConfirmModal = styled(Modal)`
-  .modal-content {
-    max-width: 400px;
-  }
-`;
-
-const ConfirmMessage = styled.p`
-  margin: ${theme.spacing.lg} 0;
-  text-align: center;
-  color: ${theme.colors.text.primary};
-  font-size: 1.1rem;
-  line-height: 1.5;
-`;
-
-const ConfirmButtons = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: ${theme.spacing.md};
-  margin-top: ${theme.spacing.lg};
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: ${theme.spacing.sm} ${theme.spacing.lg};
-  border-radius: ${theme.borderRadius.sm};
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  
-  ${props => props.variant === 'primary' ? `
-    background: ${theme.colors.primary};
-    color: white;
-    &:hover {
-      background: ${theme.colors.primaryDark};
-    }
-  ` : `
-    background: ${theme.colors.background.light};
-    color: ${theme.colors.text.primary};
-    &:hover {
-      background: ${theme.colors.background.main};
-    }
-  `}
-`;
-
 interface Book {
   id: number;
   title: string;
@@ -212,15 +152,6 @@ const ReadingRecord: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
-    isOpen: boolean;
-    bookId: number | null;
-    bookTitle: string;
-  }>({
-    isOpen: false,
-    bookId: null,
-    bookTitle: ''
-  });
 
   useEffect(() => {
     const fetchBooks = async () => {
