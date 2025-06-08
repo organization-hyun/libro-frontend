@@ -363,7 +363,7 @@ const ReadingRecordDetail: React.FC = () => {
     }
 
     try {
-      await api.delete(`/notes/${recordId}`);
+      await api.delete(`/books/${id}/notes/${recordId}`);
       setRecords(records.filter(record => record.id !== recordId));
     } catch (err) {
       console.error('Error deleting reading note:', err);
