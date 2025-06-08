@@ -13,5 +13,5 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
 
 export const logout = () => {
   localStorage.removeItem('token');
-  window.location.href = '/login';
+  window.location.href = '/';
 }; 

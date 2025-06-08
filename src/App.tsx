@@ -4,8 +4,9 @@ import { theme } from './styles/theme';
 import ReadingRecord from './pages/ReadingRecord';
 import ReadingRecordDetail from './pages/ReadingRecordDetail';
 import Login from './pages/Login';
-import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import {logout} from "@api/auth";
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -154,17 +155,23 @@ const FeatureDescription = styled.p`
 `;
 
 function App() {
-  return (
-    <AuthProvider>
+    const { isAuthenticated } = useAuth();
+
+    return (
       <Router>
         <AppContainer>
           <Header>
             <Nav>
-              <Logo to="/">LIBRO</Logo>
-              <NavLinks>
-                <NavLink to="/reading-record">독서 기록</NavLink>
-                <NavLink to="/reading-group">독서 모임</NavLink>
-              </NavLinks>
+              <Logo to="/">LIBRO</Logo><NavLinks>
+              <NavLink to="/reading-record">독서 기록</NavLink>
+              <NavLink to="/reading-group">독서 모임</NavLink>
+              {!isAuthenticated ? (
+                <NavLink to="/login">로그인</NavLink>
+            ) : (
+                <NavLink to="#" onClick={logout}>로그아웃</NavLink>
+            )}
+
+            </NavLinks>
             </Nav>
           </Header>
 
@@ -175,18 +182,22 @@ function App() {
                   <Title>Welcome to LIBRO</Title>
                   <Subtitle>당신의 독서 여정을 기록하고, 함께 나누세요</Subtitle>
                   <Features>
-                    <FeatureItem>
-                      <FeatureTitle>📝 독서 기록</FeatureTitle>
-                      <FeatureDescription>
-                        읽은 책과 독서 활동을 체계적으로 기록하고 관리하세요
-                      </FeatureDescription>
-                    </FeatureItem>
-                    <FeatureItem>
-                      <FeatureTitle>👥 독서 모임</FeatureTitle>
-                      <FeatureDescription>
-                        관심사가 비슷한 독자들과 함께 독서 모임을 만들어보세요
-                      </FeatureDescription>
-                    </FeatureItem>
+                    <Link to="/reading-record" style={{ textDecoration: 'none' }}>
+                      <FeatureItem>
+                        <FeatureTitle>📝 독서 기록</FeatureTitle>
+                        <FeatureDescription>
+                          읽은 책과 독서 활동을 체계적으로 기록하고 관리하세요
+                        </FeatureDescription>
+                      </FeatureItem>
+                    </Link>
+                    <Link to="/reading-group" style={{ textDecoration: 'none' }}>
+                      <FeatureItem>
+                        <FeatureTitle>👥 독서 모임</FeatureTitle>
+                        <FeatureDescription>
+                          관심사가 비슷한 독자들과 함께 독서 모임을 만들어보세요
+                        </FeatureDescription>
+                      </FeatureItem>
+                    </Link>
                   </Features>
                 </HomePage>
               } />
@@ -212,7 +223,6 @@ function App() {
           </MainContent>
         </AppContainer>
       </Router>
-    </AuthProvider>
   );
 }
 
