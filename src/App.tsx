@@ -166,7 +166,6 @@ function App() {
             <Nav>
               <Logo to="/">LIBRO</Logo><NavLinks>
               <NavLink to="/reading-record">독서 기록</NavLink>
-              <NavLink to="/reading-group">독서 모임</NavLink>
               {!isAuthenticated ? (
                 <NavLink to="/login">로그인</NavLink>
             ) : (
