@@ -108,9 +108,38 @@ const RecordItem = styled.div`
   line-height: 1.6;
   white-space: pre-wrap;
   transition: transform ${theme.transitions.default};
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: ${theme.spacing.md};
 
   &:hover {
     transform: translateX(4px);
+  }
+`;
+
+const RecordContent = styled.div`
+  flex: 1;
+`;
+
+const RecordDeleteButton = styled.button`
+  background: none;
+  border: none;
+  color: ${theme.colors.text.light};
+  cursor: pointer;
+  padding: ${theme.spacing.xs};
+  font-size: 1.2rem;
+  line-height: 1;
+  opacity: 0;
+  transition: all 0.2s ease;
+
+  ${RecordItem}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: ${theme.colors.error};
   }
 `;
 
@@ -325,6 +354,20 @@ const ReadingRecordDetail: React.FC = () => {
     setIsEditing(false);
   };
 
+  const handleDeleteRecord = async (recordId: number) => {
+    if (!window.confirm('이 기록을 정말로 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/notes/${recordId}`);
+      setRecords(records.filter(record => record.id !== recordId));
+    } catch (err) {
+      console.error('Error deleting reading note:', err);
+      // TODO: Add error handling UI feedback
+    }
+  };
+
   return (
     <DetailContainer>
       <Header>
@@ -364,7 +407,10 @@ const ReadingRecordDetail: React.FC = () => {
               {records.length > 0 ? (
                 <RecordList>
                   {records.map((record) => (
-                    <RecordItem key={record.id}>{record.content}</RecordItem>
+                    <RecordItem key={record.id}>
+                      <RecordContent>{record.content}</RecordContent>
+                      <RecordDeleteButton onClick={() => handleDeleteRecord(record.id)}>×</RecordDeleteButton>
+                    </RecordItem>
                   ))}
                 </RecordList>
               ) : (
