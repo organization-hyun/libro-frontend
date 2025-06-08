@@ -14,6 +14,8 @@ const api = axios.create({
 // Request interceptor to add auth token to all requests
 api.interceptors.request.use(
   (config) => {
+    console.log('API Base URL:', baseURL);
+    console.log('Full API URL (from env):', import.meta.env.VITE_API_URL);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
