@@ -6,7 +6,6 @@ import ReadingRecordDetail from './pages/ReadingRecordDetail';
 import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { useState } from 'react';
 
 const AppContainer = styled.div`
   min-height: 100vh;
