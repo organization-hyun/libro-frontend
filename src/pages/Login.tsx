@@ -12,6 +12,13 @@ const LoginContainer = styled.div`
   border-radius: ${theme.borderRadius.md};
   box-shadow: ${theme.shadows.md};
   overflow: hidden;
+
+  ${theme.mediaQueries.mobile} {
+    margin: 0;
+    flex-direction: column;
+    border-radius: 0;
+    min-height: 100vh;
+  }
 `;
 
 const LeftSection = styled.div`
@@ -21,6 +28,11 @@ const LeftSection = styled.div`
   flex-direction: column;
   justify-content: center;
   background: ${theme.colors.background.light};
+
+  ${theme.mediaQueries.mobile} {
+    padding: 40px 20px;
+    text-align: center;
+  }
 `;
 
 const RightSection = styled.div`
@@ -30,12 +42,21 @@ const RightSection = styled.div`
   flex-direction: column;
   justify-content: center;
   background: ${theme.colors.background.white};
+
+  ${theme.mediaQueries.mobile} {
+    padding: 40px 20px;
+  }
 `;
 
 const BookIcon = styled.div`
   font-size: 4rem;
   color: ${theme.colors.primary};
   margin-bottom: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 3rem;
+    margin-bottom: ${theme.spacing.lg};
+  }
 `;
 
 const WelcomeText = styled.h1`
@@ -44,6 +65,10 @@ const WelcomeText = styled.h1`
   margin-bottom: ${theme.spacing.md};
   line-height: 1.3;
   font-weight: 700;
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 2rem;
+  }
 `;
 
 const SubText = styled.p`
@@ -51,6 +76,14 @@ const SubText = styled.p`
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1rem;
+    margin-bottom: ${theme.spacing.lg};
+    br {
+      display: none;
+    }
+  }
 `;
 
 const LoginForm = styled.form`
@@ -58,6 +91,10 @@ const LoginForm = styled.form`
   flex-direction: column;
   gap: ${theme.spacing.lg};
   width: 100%;
+
+  ${theme.mediaQueries.mobile} {
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const InputGroup = styled.div`
@@ -89,6 +126,10 @@ const Input = styled.input`
   &::placeholder {
     color: ${theme.colors.text.light};
   }
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+  }
 `;
 
 const LoginButton = styled.button`
@@ -118,6 +159,10 @@ const LoginButton = styled.button`
     cursor: not-allowed;
     transform: none;
   }
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.sm} ${theme.spacing.md};
+  }
 `;
 
 const Divider = styled.div`
@@ -141,6 +186,10 @@ const Divider = styled.div`
 
   &::after {
     margin-left: ${theme.spacing.md};
+  }
+
+  ${theme.mediaQueries.mobile} {
+    margin: ${theme.spacing.lg} 0;
   }
 `;
 

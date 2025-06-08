@@ -6,6 +6,7 @@ import ReadingRecordDetail from './pages/ReadingRecordDetail';
 import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { useState } from 'react';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -16,6 +17,10 @@ const Header = styled.header`
   background-color: ${theme.colors.background.white};
   padding: ${theme.spacing.sm} ${theme.spacing.lg};
   box-shadow: ${theme.shadows.sm};
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.sm};
+  }
 `;
 
 const Nav = styled.nav`
@@ -31,11 +36,19 @@ const Logo = styled(Link)`
   font-weight: bold;
   color: ${theme.colors.text.primary};
   text-decoration: none;
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1.2rem;
+  }
 `;
 
 const NavLinks = styled.div`
   display: flex;
   gap: ${theme.spacing.lg};
+
+  ${theme.mediaQueries.mobile} {
+    gap: ${theme.spacing.md};
+  }
 `;
 
 const NavLink = styled(Link)`
@@ -47,29 +60,50 @@ const NavLink = styled(Link)`
   &:hover {
     color: ${theme.colors.primary};
   }
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 0.9rem;
+  }
 `;
 
 const MainContent = styled.main`
   max-width: 1200px;
   margin: 0 auto;
   padding: ${theme.spacing.lg};
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.md};
+  }
 `;
 
 const HomePage = styled.div`
   text-align: center;
   padding: ${theme.spacing.xl} ${theme.spacing.lg};
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.lg} ${theme.spacing.sm};
+  }
 `;
 
 const Title = styled.h1`
   font-size: 3rem;
   color: ${theme.colors.text.primary};
   margin-bottom: ${theme.spacing.sm};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 2rem;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 1.2rem;
   color: ${theme.colors.text.secondary};
   margin-bottom: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1rem;
+    margin-bottom: ${theme.spacing.lg};
+  }
 `;
 
 const Features = styled.div`
@@ -77,6 +111,12 @@ const Features = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: ${theme.spacing.lg};
   margin-top: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    grid-template-columns: 1fr;
+    gap: ${theme.spacing.md};
+    margin-top: ${theme.spacing.lg};
+  }
 `;
 
 const FeatureItem = styled.div`
@@ -89,17 +129,29 @@ const FeatureItem = styled.div`
   &:hover {
     transform: translateY(-4px);
   }
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.md};
+  }
 `;
 
 const FeatureTitle = styled.h3`
   font-size: 1.5rem;
   color: ${theme.colors.text.primary};
   margin-bottom: ${theme.spacing.sm};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1.2rem;
+  }
 `;
 
 const FeatureDescription = styled.p`
   color: ${theme.colors.text.secondary};
   line-height: 1.6;
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 0.9rem;
+  }
 `;
 
 function App() {
