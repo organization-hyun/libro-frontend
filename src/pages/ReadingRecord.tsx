@@ -173,14 +173,11 @@ const ReadingRecord: React.FC = () => {
 
   const handleAddBook = async (bookData: { title: string; author: string }) => {
     try {
-      // 새로운 책 생성
       const response = await api.post('/books', {
-        userId: 1, // TODO: 실제 사용자 ID로 변경 필요
         title: bookData.title,
         author: bookData.author
       });
       
-      // 프론트엔드에서 알고 있는 데이터와 서버에서 받은 ID를 조합
       const newBook: Book = {
         id: response.data.id,
         title: bookData.title,
