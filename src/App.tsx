@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { theme } from './styles/theme';
 import ReadingRecord from './pages/ReadingRecord';
 import ReadingRecordDetail from './pages/ReadingRecordDetail';
+import ReadingGroup from './pages/ReadingGroup';
+import ReadingGroupDetail from './pages/ReadingGroupDetail';
 import Login from './pages/Login';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -215,6 +217,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ReadingRecordDetail />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/reading-group" 
+                element={
+                  <ProtectedRoute>
+                    <ReadingGroup />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/reading-group/:id" 
+                element={
+                  <ProtectedRoute>
+                    <ReadingGroupDetail />
                   </ProtectedRoute>
                 } 
               />
