@@ -257,6 +257,7 @@ interface Record {
   id: number;
   content: string;
   createdAt: string;
+  pageNumber?: number;
 }
 
 const ReadingRecordDetail: React.FC = () => {
@@ -264,6 +265,7 @@ const ReadingRecordDetail: React.FC = () => {
   const navigate = useNavigate();
   const [records, setRecords] = useState<Record[]>([]);
   const [newRecord, setNewRecord] = useState('');
+  const [newPageNumber, setNewPageNumber] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [book, setBook] = useState<ReadingRecordType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -328,20 +330,21 @@ const ReadingRecordDetail: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRecord.trim()) return;
-
+    const pageNumber = newPageNumber.trim() ? parseInt(newPageNumber.trim(), 10) : undefined;
     try {
       const response = await api.post(`/books/${id}/note`, {
-        content: newRecord.trim()
+        content: newRecord.trim(),
+        pageNumber
       });
-
       const record: Record = {
         id: response.data.id,
         content: newRecord.trim(),
         createdAt: new Date().toISOString(),
+        pageNumber: pageNumber,
       };
-
       setRecords((prev) => [...prev, record]);
       setNewRecord('');
+      setNewPageNumber('');
       setIsEditing(false);
     } catch (err) {
       console.error('Error saving reading note:', err);
@@ -393,6 +396,18 @@ const ReadingRecordDetail: React.FC = () => {
                 placeholder="독서 기록을 작성해보세요..."
                 autoFocus
               />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                min="1"
+                value={newPageNumber}
+                onChange={e => setNewPageNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="몇 페이지에 대한 기록인가요? (예: 10)"
+                style={{ padding: '12px', fontSize: '1rem', borderRadius: '6px', border: '1px solid #eee' }}
+                autoComplete="off"
+                maxLength={5}
+              />
               <ButtonGroup>
                 <Button type="button" onClick={handleCancel}>
                   취소
@@ -408,7 +423,10 @@ const ReadingRecordDetail: React.FC = () => {
                 <RecordList>
                   {records.map((record) => (
                     <RecordItem key={record.id}>
-                      <RecordContent>{record.content}</RecordContent>
+                      <RecordContent>
+                        {record.pageNumber ? <span style={{ color: '#888', fontSize: '0.95em', marginRight: 8 }}>[p.{record.pageNumber}]</span> : null}
+                        {record.content}
+                      </RecordContent>
                       <RecordDeleteButton onClick={() => handleDeleteRecord(record.id)}>×</RecordDeleteButton>
                     </RecordItem>
                   ))}
@@ -429,4 +447,4 @@ const ReadingRecordDetail: React.FC = () => {
   );
 };
 
-export default ReadingRecordDetail; 
+export default ReadingRecordDetail;
