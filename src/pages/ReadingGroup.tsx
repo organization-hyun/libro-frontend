@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { useNavigate } from 'react-router-dom';
+import { getReadingGroups, ReadingGroupItem } from '../api/readingGroup';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -63,10 +64,51 @@ const BookDescription = styled.p`
 
 const ReadingGroup: React.FC = () => {
   const navigate = useNavigate();
+  const [readingGroups, setReadingGroups] = useState<ReadingGroupItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleBookClick = () => {
-    navigate('/reading-group/kafka');
+  useEffect(() => {
+    const fetchReadingGroups = async () => {
+      try {
+        const data = await getReadingGroups();
+        setReadingGroups(data);
+      } catch (err) {
+        setError('독서 모임 목록을 불러오는데 실패했습니다.');
+        console.error('Failed to fetch reading groups:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReadingGroups();
+  }, []);
+
+  const handleBookClick = (id: number) => {
+    navigate(`/reading-group/${id}`);
   };
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Header>
+          <Title>독서 모임</Title>
+        </Header>
+        <div>로딩 중...</div>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Header>
+          <Title>독서 모임</Title>
+        </Header>
+        <div style={{ color: theme.colors.error }}>{error}</div>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -74,14 +116,15 @@ const ReadingGroup: React.FC = () => {
         <Title>독서 모임</Title>
       </Header>
       <BookGrid>
-        <BookCard onClick={handleBookClick}>
-          <BookTitle>해변의 카프카</BookTitle>
-          <BookAuthor>무라카미 하루키</BookAuthor>
-          <BookDescription>
-            15세 소년 '카프카 타무라'가 어머니와 누나를 찾아 집을 떠나면서 시작되는 
-            미스터리한 이야기...
-          </BookDescription>
-        </BookCard>
+        {readingGroups.map((group) => (
+          <BookCard key={group.id} onClick={() => handleBookClick(group.id)}>
+            <BookTitle>{group.bookTitle}</BookTitle>
+            <BookAuthor>{group.bookAuthor}</BookAuthor>
+            <BookDescription>
+              {group.description}
+            </BookDescription>
+          </BookCard>
+        ))}
       </BookGrid>
     </Container>
   );
