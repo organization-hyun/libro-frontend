@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { ReadingRecord as ReadingRecordType } from '../types/reading';
-import api from '@api/config';
+import api from '@/api/apiClient';
 
 const DetailContainer = styled.div`
   padding: ${theme.spacing.lg};

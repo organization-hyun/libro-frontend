@@ -1,4 +1,4 @@
-import api from './config';
+import api from '@/api/apiClient';
 
 export interface ReadingGroupItem {
   id: number;

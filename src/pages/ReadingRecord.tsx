@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { Modal } from '../components/common/Modal';
 import { AddBookForm } from '../components/reading/AddBookForm';
-import api from '@api/config';
+import api from '@/api/apiClient';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
