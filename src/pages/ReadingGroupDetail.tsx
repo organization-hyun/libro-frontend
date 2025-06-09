@@ -1,7 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
+import { ReadingGroupItem, getReadingGroupById } from '../api/readingGroup';
 
 const DetailContainer = styled.div`
   padding: ${theme.spacing.lg};
@@ -69,10 +70,71 @@ const BookDescription = styled.p`
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
+  white-space: pre-line;
+`;
+
+const LoadingText = styled.p`
+  text-align: center;
+  color: ${theme.colors.text.secondary};
+  font-size: 1.1rem;
+  padding: ${theme.spacing.xl} 0;
+`;
+
+const ErrorText = styled.p`
+  text-align: center;
+  color: ${theme.colors.error};
+  font-size: 1.1rem;
+  padding: ${theme.spacing.xl} 0;
 `;
 
 const ReadingGroupDetail: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [readingGroup, setReadingGroup] = useState<ReadingGroupItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchReadingGroup = async () => {
+      if (!id) {
+        setError('Reading group ID is missing');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getReadingGroupById(id);
+        setReadingGroup(data);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load reading group details');
+        console.error('Error fetching reading group:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReadingGroup();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <DetailContainer>
+        <LoadingText>Loading reading group details...</LoadingText>
+      </DetailContainer>
+    );
+  }
+
+  if (error || !readingGroup) {
+    return (
+      <DetailContainer>
+        <BackButton onClick={() => navigate('/reading-group')}>
+          ← 돌아가기
+        </BackButton>
+        <ErrorText>{error || 'Reading group not found'}</ErrorText>
+      </DetailContainer>
+    );
+  }
 
   return (
     <DetailContainer>
@@ -81,13 +143,9 @@ const ReadingGroupDetail: React.FC = () => {
           ← 돌아가기
         </BackButton>
         <BookInfo>
-          <BookTitle>해변의 카프카</BookTitle>
-          <BookAuthor>무라카미 하루키</BookAuthor>
-          <BookDescription>
-            15세 소년 '카프카 타무라'가 어머니와 누나를 찾아 집을 떠나면서 시작되는 
-            미스터리한 이야기. 평행하게 전개되는 '나카타 씨'의 이야기와 함께, 
-            현실과 비현실을 넘나드는 무라카미 하루키의 대표작입니다.
-          </BookDescription>
+          <BookTitle>{readingGroup.bookTitle}</BookTitle>
+          <BookAuthor>{readingGroup.bookAuthor}</BookAuthor>
+          <BookDescription>{readingGroup.description}</BookDescription>
         </BookInfo>
       </Header>
     </DetailContainer>

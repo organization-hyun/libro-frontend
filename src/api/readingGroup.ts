@@ -10,4 +10,9 @@ export interface ReadingGroupItem {
 export const getReadingGroups = async (): Promise<ReadingGroupItem[]> => {
   const response = await api.get<ReadingGroupItem[]>('/reading-groups');
   return response.data;
+};
+
+export const getReadingGroupById = async (id: string): Promise<ReadingGroupItem> => {
+  const response = await api.get<ReadingGroupItem>(`/reading-groups/${id}`);
+  return response.data;
 }; 
