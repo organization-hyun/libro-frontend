@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
-import { ReadingRecord as ReadingRecordType } from '../types/reading';
+import { ReadingRecord } from '../types/readingRecord';
 import api from '@/api/apiClient';
 
 const DetailContainer = styled.div`
@@ -267,20 +267,20 @@ const ReadingRecordDetail: React.FC = () => {
   const [newRecord, setNewRecord] = useState('');
   const [newPageNumber, setNewPageNumber] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [book, setBook] = useState<ReadingRecordType | null>(null);
+  const [readingRecord, setReadingRecord] = useState<ReadingRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBookDetails = async () => {
+    const fetchReadingRecord = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get(`/books/${id}`);
-        setBook(response.data);
+        const response = await api.get(`/reading-records/${id}`);
+        setReadingRecord(response.data);
         setError(null);
       } catch (err) {
         setError('도서 정보를 불러오는데 실패했습니다.');
-        console.error('Error fetching book details:', err);
+        console.error('Error fetching reading record:', err);
       } finally {
         setIsLoading(false);
       }
@@ -288,7 +288,7 @@ const ReadingRecordDetail: React.FC = () => {
 
     const fetchReadingNotes = async () => {
       try {
-        const response = await api.get(`/books/${id}/notes`);
+        const response = await api.get(`/reading-records/${id}/notes`);
         setRecords(response.data);
       } catch (err) {
         console.error('Error fetching reading notes:', err);
@@ -296,7 +296,7 @@ const ReadingRecordDetail: React.FC = () => {
     };
 
     if (id) {
-      fetchBookDetails();
+      fetchReadingRecord();
       fetchReadingNotes();
     }
   }, [id]);
@@ -314,7 +314,7 @@ const ReadingRecordDetail: React.FC = () => {
     );
   }
 
-  if (error || !book) {
+  if (error || !readingRecord) {
     return (
       <DetailContainer>
         <Header>
@@ -332,7 +332,7 @@ const ReadingRecordDetail: React.FC = () => {
     if (!newRecord.trim()) return;
     const pageNumber = newPageNumber.trim() ? parseInt(newPageNumber.trim(), 10) : undefined;
     try {
-      const response = await api.post(`/books/${id}/note`, {
+      const response = await api.post(`/reading-records/${id}/note`, {
         content: newRecord.trim(),
         pageNumber
       });
@@ -363,7 +363,7 @@ const ReadingRecordDetail: React.FC = () => {
     }
 
     try {
-      await api.delete(`/books/${id}/notes/${recordId}`);
+      await api.delete(`/reading-records/${id}/notes/${recordId}`);
       setRecords(records.filter(record => record.id !== recordId));
     } catch (err) {
       console.error('Error deleting reading note:', err);
@@ -378,8 +378,8 @@ const ReadingRecordDetail: React.FC = () => {
           ← 돌아가기
         </BackButton>
         <BookInfo>
-          <BookTitle>{book.title}</BookTitle>
-          <BookAuthor>{book.author}</BookAuthor>
+          <BookTitle>{readingRecord.bookTitle}</BookTitle>
+          <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>
         </BookInfo>
       </Header>
 

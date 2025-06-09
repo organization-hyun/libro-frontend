@@ -72,7 +72,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   `}
 `;
 
-export const AddBookForm: React.FC<AddBookFormProps> = ({ onSubmit, onCancel }) => {
+export const AddReadingRecordForm: React.FC<AddBookFormProps> = ({ onSubmit, onCancel }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
 

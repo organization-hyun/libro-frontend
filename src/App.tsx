@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from './styles/theme';
-import ReadingRecord from './pages/ReadingRecord';
+import ReadingRecordPage from './pages/ReadingRecordPage';
 import ReadingRecordDetail from './pages/ReadingRecordDetail';
 import ReadingGroup from './pages/ReadingGroup';
 import ReadingGroupDetail from './pages/ReadingGroupDetail';
@@ -208,7 +208,7 @@ function App() {
                 path="/reading-record" 
                 element={
                   <ProtectedRoute>
-                    <ReadingRecord />
+                    <ReadingRecordPage />
                   </ProtectedRoute>
                 } 
               />

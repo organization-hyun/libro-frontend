@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { Modal } from '../components/common/Modal';
-import { AddBookForm } from '../components/reading/AddBookForm';
+import { AddReadingRecordForm } from '../components/reading/AddReadingRecordForm';
 import api from '@/api/apiClient';
 
 const Container = styled.div`
@@ -138,27 +138,23 @@ const Toast = styled.div<{ show: boolean }>`
   z-index: 1000;
 `;
 
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-}
+import { ReadingRecord } from '@/types/readingRecord';
 
-const ReadingRecord: React.FC = () => {
+const ReadingRecordPage: React.FC = () => {
   const navigate = useNavigate();
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
-  const [books, setBooks] = useState<Book[]>([]);
+  const [readingRecords, setReadingRecords] = useState<ReadingRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchReadingRecords = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/books');
-        setBooks(response.data);
+        const response = await api.get('/reading-records');
+        setReadingRecords(response.data);
         setError(null);
       } catch (err) {
         setError('도서 목록을 불러오는데 실패했습니다.');
@@ -168,23 +164,23 @@ const ReadingRecord: React.FC = () => {
       }
     };
 
-    fetchBooks();
+    fetchReadingRecords();
   }, []);
 
-  const handleAddBook = async (bookData: { title: string; author: string }) => {
+  const handleAddReadingRecord = async (bookData: { title: string; author: string }) => {
     try {
-      const response = await api.post('/books', {
-        title: bookData.title,
-        author: bookData.author
+      const response = await api.post('/reading-records', {
+        bookTitle: bookData.title,
+        bookAuthor: bookData.author
       });
       
-      const newBook: Book = {
+      const newReadingRecord: ReadingRecord = {
         id: response.data.id,
-        title: bookData.title,
-        author: bookData.author
+        bookTitle: bookData.title,
+        bookAuthor: bookData.author
       };
       
-      setBooks([...books, newBook]);
+      setReadingRecords([...readingRecords, newReadingRecord]);
       setIsAddBookModalOpen(false);
     } catch (err) {
       console.error('Error adding book:', err);
@@ -204,8 +200,8 @@ const ReadingRecord: React.FC = () => {
     }
 
     try {
-      await api.delete(`/books/${bookId}`);
-      setBooks(books.filter(book => book.id !== bookId));
+      await api.delete(`/reading-records/${bookId}`);
+      setReadingRecords(readingRecords.filter(book => book.id !== bookId));
       setToastMessage(`"${bookTitle}"이(가) 삭제되었습니다.`);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
@@ -244,11 +240,11 @@ const ReadingRecord: React.FC = () => {
       </Header>
 
       <BookGrid>
-        {books.map((book) => (
-          <BookCard key={book.id} onClick={() => handleBookClick(book.id)}>
-            <DeleteButton onClick={(e) => handleDeleteBook(book.id, book.title, e)}>×</DeleteButton>
-            <BookTitle>{book.title}</BookTitle>
-            <BookAuthor>{book.author}</BookAuthor>
+        {readingRecords.map((readingRecord) => (
+          <BookCard key={readingRecord.id} onClick={() => handleBookClick(readingRecord.id)}>
+            <DeleteButton onClick={(e) => handleDeleteBook(readingRecord.id, readingRecord.bookTitle, e)}>×</DeleteButton>
+            <BookTitle>{readingRecord.bookTitle}</BookTitle>
+            <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>
           </BookCard>
         ))}
         <AddBookCard onClick={() => setIsAddBookModalOpen(true)}>
@@ -262,8 +258,8 @@ const ReadingRecord: React.FC = () => {
         onClose={() => setIsAddBookModalOpen(false)}
         title="새 책 추가"
       >
-        <AddBookForm
-          onSubmit={handleAddBook}
+        <AddReadingRecordForm
+          onSubmit={handleAddReadingRecord}
           onCancel={() => setIsAddBookModalOpen(false)}
         />
       </Modal>
@@ -275,4 +271,4 @@ const ReadingRecord: React.FC = () => {
   );
 };
 
-export default ReadingRecord; 
+export default ReadingRecordPage; 
