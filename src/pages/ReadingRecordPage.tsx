@@ -158,7 +158,7 @@ const ReadingRecordPage: React.FC = () => {
         setError(null);
       } catch (err) {
         setError('도서 목록을 불러오는데 실패했습니다.');
-        console.error('Error fetching books:', err);
+        console.error('Error fetching reading records:', err);
       } finally {
         setIsLoading(false);
       }
