@@ -344,17 +344,12 @@ const ReadingGroupDetail: React.FC = () => {
         <BookGrid>
           {sharedRecords.length > 0 ? (
             sharedRecords.map((record) => (
-              <SharedBookCard key={record.id}>
+              <SharedBookCard key={record.readingRecordId}>
                 <UserInfo>
-                  <UserName>{record.userName}</UserName>
-                  <ShareDate>{new Date(record.createdAt).toLocaleDateString()}</ShareDate>
+                  <UserName>{record.writerName}</UserName>
+                  <ShareDate>{new Date(record.sharedDate).toLocaleDateString()}</ShareDate>
                 </UserInfo>
-                <CardTitle>{record.bookTitle}</CardTitle>
-                <CardAuthor>{record.bookAuthor}</CardAuthor>
-                <p>
-                  {record.pageNumber && <span style={{ color: theme.colors.text.secondary }}>[p.{record.pageNumber}] </span>}
-                  {record.content}
-                </p>
+                <p>{record.review}</p>
               </SharedBookCard>
             ))
           ) : (
