@@ -332,8 +332,7 @@ const ReadingRecordPage: React.FC = () => {
 
     try {
       const response = await api.post('/reading-records', {
-        bookTitle: selectedBook.title,
-        bookAuthor: selectedBook.author
+        bookId: bookId
       });
       
       const newReadingRecord: ReadingRecord = {
