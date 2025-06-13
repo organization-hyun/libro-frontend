@@ -1,5 +1,4 @@
 import api from '@/api/apiClient';
-import { ReadingRecord } from '../types/readingRecord';
 
 export interface ReadingGroupItem {
   id: number;
