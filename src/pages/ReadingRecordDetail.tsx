@@ -253,6 +253,24 @@ const EmptyMessage = styled.p`
   padding: ${theme.spacing.xl} 0;
 `;
 
+const StatusToggle = styled.button`
+  display: block;
+  margin: ${theme.spacing.md} auto 0; /* 중앙 정렬 및 위쪽 간격 */
+  background: ${theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: ${theme.borderRadius.sm};
+  padding: ${theme.spacing.xs} ${theme.spacing.md};
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: ${theme.colors.primaryDark};
+  }
+`;
+
 interface Record {
   id: number;
   content: string;
@@ -270,6 +288,19 @@ const ReadingRecordDetail: React.FC = () => {
   const [readingRecord, setReadingRecord] = useState<ReadingRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readingStatus, setReadingStatus] = useState<'WANT_TO_READ' | 'READING' | 'DONE'>('WANT_TO_READ');
+
+  const statusLabels = {
+    WANT_TO_READ: '읽고 싶어요',
+    READING: '읽는 중',
+    DONE: '완료'
+  };
+
+  const nextStatus = {
+    WANT_TO_READ: 'READING',
+    READING: 'DONE',
+    DONE: 'WANT_TO_READ'
+  };
 
   useEffect(() => {
     const fetchReadingRecord = async () => {
@@ -371,6 +402,12 @@ const ReadingRecordDetail: React.FC = () => {
     }
   };
 
+  const handleStatusToggle = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    setReadingStatus(prev => nextStatus[prev] as 'WANT_TO_READ' | 'READING' | 'DONE');
+  };
+
   return (
     <DetailContainer>
       <Header>
@@ -380,6 +417,9 @@ const ReadingRecordDetail: React.FC = () => {
         <BookInfo>
           <BookTitle>{readingRecord.bookTitle}</BookTitle>
           <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>
+          <StatusToggle onClick={(e) => handleStatusToggle(e)}>
+            {statusLabels[readingStatus]}
+          </StatusToggle>
         </BookInfo>
       </Header>
 
