@@ -255,12 +255,6 @@ const SearchButton = styled.button`
   }
 `;
 
-const SearchSuggestions = styled.div`
-  margin-top: ${theme.spacing.md};
-  color: ${theme.colors.text.secondary};
-  font-size: 0.9rem;
-`;
-
 const TrendingSection = styled.div`
   margin-top: ${theme.spacing.xl};
   text-align: center;
@@ -322,12 +316,6 @@ const BookTitle = styled.span`
 const BookAuthor = styled.span`
   color: ${theme.colors.text.secondary};
   font-size: 0.9rem;
-`;
-
-const BookInfo = styled.span`
-  color: ${theme.colors.text.light};
-  font-size: 0.8rem;
-  margin-top: ${theme.spacing.xs};
 `;
 
 const IntroductionPage = styled.div`
