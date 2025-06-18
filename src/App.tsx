@@ -203,11 +203,13 @@ const SearchSubtitle = styled.p`
 const SearchBox = styled.div`
   position: relative;
   width: 100%;
+  max-width: 100%;
   margin-bottom: ${theme.spacing.xl};
 `;
 
 const SearchInput = styled.input`
   width: 100%;
+  box-sizing: border-box;
   padding: ${theme.spacing.lg};
   font-size: 1.1rem;
   border: 2px solid ${theme.colors.border};
@@ -228,6 +230,7 @@ const SearchInput = styled.input`
   ${theme.mediaQueries.mobile} {
     padding: ${theme.spacing.md};
     font-size: 1rem;
+    padding-right: 60px;
   }
 `;
 
@@ -240,18 +243,22 @@ const SearchButton = styled.button`
   color: white;
   border: none;
   border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.sm} ${theme.spacing.lg};
-  font-size: 1rem;
+  padding: ${theme.spacing.xs} 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  min-width: 40px;
+  height: 70%;
 
   &:hover {
     background: ${theme.colors.primaryDark};
   }
 
   ${theme.mediaQueries.mobile} {
-    padding: ${theme.spacing.xs} ${theme.spacing.md};
     font-size: 0.9rem;
+    min-width: 40px;
+    padding: ${theme.spacing.xs} 0.7rem;
+    height: 70%;
   }
 `;
 
