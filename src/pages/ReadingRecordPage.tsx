@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { Modal } from '../components/common/Modal';
-import { AddReadingRecordForm } from '../components/reading/AddReadingRecordForm';
 import api from '@/api/apiClient';
 
 const Container = styled.div`
@@ -140,14 +139,150 @@ const Toast = styled.div<{ show: boolean }>`
 
 import { ReadingRecord } from '@/types/readingRecord';
 
+const ModalContent = styled.div`
+  width: 100%;
+  max-width: 600px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  background: ${theme.colors.background.white};
+  border-radius: ${theme.borderRadius.md};
+`;
+
+const SearchContainer = styled.div`
+  padding: ${theme.spacing.md};
+  position: sticky;
+  top: 0;
+  background: ${theme.colors.background.white};
+  border-bottom: 1px solid ${theme.colors.border};
+  z-index: 1;
+`;
+
+const SearchWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: ${theme.spacing.sm};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.sm};
+  font-size: 1rem;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: ${theme.colors.text.secondary};
+  }
+
+  &:hover {
+    border-color: ${theme.colors.text.secondary};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${theme.colors.primary};
+    box-shadow: 0 0 0 2px ${theme.colors.primary}20;
+  }
+`;
+
+const SearchResultCount = styled.div`
+  margin-top: ${theme.spacing.sm};
+  font-size: 0.9rem;
+  color: ${theme.colors.text.secondary};
+`;
+
+const BookList = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  background: ${theme.colors.background.white};
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: ${theme.colors.background.light};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${theme.colors.border};
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${theme.colors.text.secondary};
+  }
+`;
+
+const BookItem = styled.div`
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  border-bottom: 1px solid ${theme.colors.border};
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: ${theme.spacing.md};
+
+  &:hover {
+    background-color: ${theme.colors.background.light};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const BookInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const BookItemTitle = styled.div`
+  font-weight: 600;
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.xs};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const BookItemAuthor = styled.div`
+  font-size: 0.9rem;
+  color: ${theme.colors.text.secondary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const NoResults = styled.div`
+  padding: ${theme.spacing.md};
+  text-align: center;
+  color: ${theme.colors.text.secondary};
+`;
+
+const LoadingContainer = styled.div`
+  padding: ${theme.spacing.md};
+  text-align: center;
+  color: ${theme.colors.text.secondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${theme.spacing.sm};
+`;
+
 const ReadingRecordPage: React.FC = () => {
   const navigate = useNavigate();
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [readingRecords, setReadingRecords] = useState<ReadingRecord[]>([]);
+  const [books, setBooks] = useState<Array<{ id: number; title: string; author: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBooksLoading, setIsBooksLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchReadingRecords = async () => {
@@ -167,21 +302,50 @@ const ReadingRecordPage: React.FC = () => {
     fetchReadingRecords();
   }, []);
 
-  const handleAddReadingRecord = async (bookData: { title: string; author: string }) => {
+  useEffect(() => {
+    const fetchBooks = async () => {
+      if (!isAddBookModalOpen) return;
+      
+      try {
+        setIsBooksLoading(true);
+        const response = await api.get('/books');
+        setBooks(response.data);
+      } catch (err) {
+        console.error('Error fetching books:', err);
+        setError('도서 목록을 불러오는데 실패했습니다.');
+      } finally {
+        setIsBooksLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, [isAddBookModalOpen]);
+
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    book.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleAddReadingRecord = async (bookId: number) => {
+    const selectedBook = books.find(book => book.id === bookId);
+    if (!selectedBook) return;
+
     try {
       const response = await api.post('/reading-records', {
-        bookTitle: bookData.title,
-        bookAuthor: bookData.author
+        bookId: bookId
       });
       
       const newReadingRecord: ReadingRecord = {
         id: response.data.id,
-        bookTitle: bookData.title,
-        bookAuthor: bookData.author
+        bookTitle: selectedBook.title,
+        bookAuthor: selectedBook.author
       };
       
       setReadingRecords([...readingRecords, newReadingRecord]);
       setIsAddBookModalOpen(false);
+      setToastMessage(`"${selectedBook.title}"이(가) 추가되었습니다.`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     } catch (err) {
       console.error('Error adding book:', err);
       setError('도서 추가에 실패했습니다.');
@@ -255,13 +419,50 @@ const ReadingRecordPage: React.FC = () => {
 
       <Modal
         isOpen={isAddBookModalOpen}
-        onClose={() => setIsAddBookModalOpen(false)}
+        onClose={() => {
+          setIsAddBookModalOpen(false);
+          setSearchQuery('');
+        }}
         title="새 책 추가"
       >
-        <AddReadingRecordForm
-          onSubmit={handleAddReadingRecord}
-          onCancel={() => setIsAddBookModalOpen(false)}
-        />
+        <ModalContent>
+          <SearchContainer>
+            <SearchWrapper>
+              <SearchInput
+                type="text"
+                placeholder="도서 제목 또는 저자로 검색"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+            </SearchWrapper>
+            {!isBooksLoading && searchQuery && (
+              <SearchResultCount>
+                검색 결과 {filteredBooks.length}건
+              </SearchResultCount>
+            )}
+          </SearchContainer>
+          <BookList>
+            {isBooksLoading ? (
+              <LoadingContainer>
+                <span>로딩 중...</span>
+              </LoadingContainer>
+            ) : filteredBooks.length > 0 ? (
+              filteredBooks.map((book) => (
+                <BookItem key={book.id} onClick={() => handleAddReadingRecord(book.id)}>
+                  <BookInfo>
+                    <BookItemTitle>{book.title}</BookItemTitle>
+                    <BookItemAuthor>{book.author}</BookItemAuthor>
+                  </BookInfo>
+                </BookItem>
+              ))
+            ) : (
+              <NoResults>
+                {searchQuery ? '검색 결과가 없습니다.' : '도서 목록이 없습니다.'}
+              </NoResults>
+            )}
+          </BookList>
+        </ModalContent>
       </Modal>
 
       <Toast show={showToast}>
