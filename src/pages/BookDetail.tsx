@@ -86,18 +86,9 @@ const BookAuthor = styled.p`
 
 const BookMeta = styled.div`
   display: flex;
-  flex-wrap: wrap;
   gap: ${theme.spacing.md};
   margin-top: ${theme.spacing.sm};
   justify-content: center;
-`;
-
-const MetaItem = styled.span`
-  background: ${theme.colors.background.light};
-  padding: ${theme.spacing.xs} ${theme.spacing.sm};
-  border-radius: ${theme.borderRadius.sm};
-  font-size: 0.9rem;
-  color: ${theme.colors.text.secondary};
 `;
 
 const ActionButtons = styled.div`
@@ -221,12 +212,6 @@ const RelatedBookAuthor = styled.p`
   font-size: 0.9rem;
   color: ${theme.colors.text.secondary};
   margin: 0;
-`;
-
-const LoadingContainer = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.xl} 0;
-  color: ${theme.colors.text.secondary};
 `;
 
 const ErrorContainer = styled.div`

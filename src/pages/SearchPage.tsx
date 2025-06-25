@@ -129,12 +129,6 @@ const NoResults = styled.div`
   font-size: 1.1rem;
 `;
 
-const LoadingContainer = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.xl} 0;
-  color: ${theme.colors.text.secondary};
-`;
-
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
