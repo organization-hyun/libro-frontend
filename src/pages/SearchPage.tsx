@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
-import api from '@/api/apiClient';
+import { booksApi } from '../api/books';
+import { Book } from '../types/book';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -54,11 +56,34 @@ const BookCard = styled.div`
   padding: ${theme.spacing.lg};
   box-shadow: ${theme.shadows.sm};
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
 
   &:hover {
+    transform: translateY(-8px);
+    box-shadow: ${theme.shadows.lg};
+    border-color: ${theme.colors.primary};
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
     transform: translateY(-4px);
-    box-shadow: ${theme.shadows.md};
   }
 `;
 
@@ -67,23 +92,34 @@ const BookTitle = styled.h2`
   color: ${theme.colors.text.primary};
   margin-bottom: ${theme.spacing.xs};
   font-weight: 600;
+  transition: color 0.2s ease;
+
+  ${BookCard}:hover & {
+    color: ${theme.colors.primary};
+  }
 `;
 
 const BookAuthor = styled.p`
   font-size: 1rem;
   color: ${theme.colors.text.secondary};
   margin-bottom: ${theme.spacing.sm};
+  font-weight: 500;
 `;
 
 const BookDescription = styled.p`
   color: ${theme.colors.text.secondary};
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-top: ${theme.spacing.md};
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.2s ease;
+
+  ${BookCard}:hover & {
+    color: ${theme.colors.text.primary};
+  }
 `;
 
 const NoResults = styled.div`
@@ -98,13 +134,6 @@ const LoadingContainer = styled.div`
   padding: ${theme.spacing.xl} 0;
   color: ${theme.colors.text.secondary};
 `;
-
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  description: string;
-}
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -123,8 +152,8 @@ const SearchPage: React.FC = () => {
 
       try {
         setIsLoading(true);
-        const response = await api.get(`/books/search?q=${encodeURIComponent(query)}`);
-        setBooks(response.data);
+        const booksData = await booksApi.searchBooks(query);
+        setBooks(booksData);
         setError(null);
       } catch (err) {
         setError('도서 검색에 실패했습니다.');
@@ -138,7 +167,7 @@ const SearchPage: React.FC = () => {
   }, [query, navigate]);
 
   const handleBookClick = (bookId: number) => {
-    navigate(`/reading-record/${bookId}`);
+    navigate(`/book/${bookId}`);
   };
 
   if (isLoading) {
@@ -150,7 +179,7 @@ const SearchPage: React.FC = () => {
             <SearchQuery>"{query}"</SearchQuery> 검색 중...
           </SearchResultTitle>
         </Header>
-        <LoadingContainer>검색 결과를 불러오는 중입니다...</LoadingContainer>
+        <LoadingSpinner text="검색 결과를 불러오는 중입니다..." />
       </Container>
     );
   }

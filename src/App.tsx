@@ -7,11 +7,14 @@ import ReadingGroup from './pages/ReadingGroup';
 import ReadingGroupDetail from './pages/ReadingGroupDetail';
 import Login from './pages/Login';
 import SearchPage from './pages/SearchPage';
+import BookDetail from './pages/BookDetail';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import {logout} from "@api/auth";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Book } from './types/book';
+import { booksApi } from './api/books';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -337,7 +340,26 @@ const IntroductionPage = styled.div`
 function App() {
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [trendingBooks, setTrendingBooks] = useState<Book[]>([]);
+  const [isLoadingTrending, setIsLoadingTrending] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTrendingBooks = async () => {
+      try {
+        setIsLoadingTrending(true);
+        const books = await booksApi.getPopularBooks();
+        setTrendingBooks(books);
+      } catch (error) {
+        console.error('트렌딩 책을 불러오는데 실패했습니다:', error);
+        setTrendingBooks([]);
+      } finally {
+        setIsLoadingTrending(false);
+      }
+    };
+
+    fetchTrendingBooks();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -392,30 +414,22 @@ function App() {
                 <TrendingSection>
                   <TrendingTitle>최근 자주 검색된 도서</TrendingTitle>
                   <TrendingBooks>
-                    <TrendingBook onClick={() => handleTrendingBookClick("해변의 카프카")}>
-                      <BookTitle>해변의 카프카</BookTitle>
-                      <BookAuthor>무라카미 하루키</BookAuthor>
-                    </TrendingBook>
-                    <TrendingBook onClick={() => handleTrendingBookClick("어떻게 말해줘야 할까")}>
-                      <BookTitle>어떻게 말해줘야 할까</BookTitle>
-                      <BookAuthor>김영하</BookAuthor>
-                    </TrendingBook>
-                    <TrendingBook onClick={() => handleTrendingBookClick("완전한 행복")}>
-                      <BookTitle>완전한 행복</BookTitle>
-                      <BookAuthor>정유정</BookAuthor>
-                    </TrendingBook>
-                    <TrendingBook onClick={() => handleTrendingBookClick("달러구트 꿈 백화점")}>
-                      <BookTitle>달러구트 꿈 백화점</BookTitle>
-                      <BookAuthor>이미예</BookAuthor>
-                    </TrendingBook>
-                    <TrendingBook onClick={() => handleTrendingBookClick("불편한 편의점")}>
-                      <BookTitle>불편한 편의점</BookTitle>
-                      <BookAuthor>김호연</BookAuthor>
-                    </TrendingBook>
-                    <TrendingBook onClick={() => handleTrendingBookClick("아몬드")}>
-                      <BookTitle>아몬드</BookTitle>
-                      <BookAuthor>손원평</BookAuthor>
-                    </TrendingBook>
+                    {isLoadingTrending ? (
+                      <div style={{ textAlign: 'center', padding: '2rem', color: theme.colors.text.secondary }}>
+                        인기 도서를 불러오는 중...
+                      </div>
+                    ) : trendingBooks.length > 0 ? (
+                      trendingBooks.map((book) => (
+                        <TrendingBook key={book.id} onClick={() => handleTrendingBookClick(book.title)}>
+                          <BookTitle>{book.title}</BookTitle>
+                          <BookAuthor>{book.author}</BookAuthor>
+                        </TrendingBook>
+                      ))
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '2rem', color: theme.colors.text.secondary }}>
+                        인기 도서를 불러올 수 없습니다.
+                      </div>
+                    )}
                   </TrendingBooks>
                 </TrendingSection>
               </SearchContainer>
@@ -446,6 +460,7 @@ function App() {
             </IntroductionPage>
           } />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/book/:bookId" element={<BookDetail />} />
           <Route path="/login" element={<Login />} />
           <Route 
             path="/reading-record" 
