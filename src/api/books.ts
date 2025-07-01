@@ -19,4 +19,14 @@ export const booksApi = {
     const response = await api.get('/books/popular');
     return response.data;
   },
+
+  // 새 책 추가
+  addBook: async (bookData: {
+    title: string;
+    author: string;
+    description: string;
+  }): Promise<Book> => {
+    const response = await api.post('/books', bookData);
+    return response.data;
+  },
 }; 

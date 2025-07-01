@@ -5,6 +5,8 @@ import { theme } from '../styles/theme';
 import { booksApi } from '../api/books';
 import { Book } from '../types/book';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import AddBookForm from '../components/common/AddBookForm';
+import Toast from '../components/common/Toast';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -38,6 +40,29 @@ const SearchResultTitle = styled.h1`
   color: ${theme.colors.text.primary};
   margin-bottom: ${theme.spacing.md};
   font-weight: 700;
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${theme.spacing.lg};
+`;
+
+const AddBookButtonSmall = styled.button`
+  background: ${theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: ${theme.borderRadius.sm};
+  padding: ${theme.spacing.xs} ${theme.spacing.md};
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: ${theme.colors.primaryDark};
+  }
 `;
 
 const SearchQuery = styled.span`
@@ -129,12 +154,25 @@ const NoResults = styled.div`
   font-size: 1.1rem;
 `;
 
+
+
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+  const [isAddingBook, setIsAddingBook] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  });
   const query = searchParams.get('q') || '';
 
   useEffect(() => {
@@ -162,6 +200,39 @@ const SearchPage: React.FC = () => {
 
   const handleBookClick = (bookId: number) => {
     navigate(`/book/${bookId}`);
+  };
+
+  const handleAddBook = async (bookData: {
+    title: string;
+    author: string;
+    description: string;
+  }) => {
+    try {
+      setIsAddingBook(true);
+      const newBook = await booksApi.addBook(bookData);
+      
+      // 새로 추가된 책을 목록에 추가
+      setBooks(prev => [newBook, ...prev]);
+      
+      // 모달 닫기
+      setIsAddBookModalOpen(false);
+      
+      // 성공 메시지
+      setToast({
+        message: '책이 성공적으로 추가되었습니다!',
+        type: 'success',
+        isVisible: true,
+      });
+    } catch (err) {
+      console.error('Error adding book:', err);
+      setToast({
+        message: '책 추가에 실패했습니다. 다시 시도해주세요.',
+        type: 'error',
+        isVisible: true,
+      });
+    } finally {
+      setIsAddingBook(false);
+    }
   };
 
   if (isLoading) {
@@ -196,9 +267,14 @@ const SearchPage: React.FC = () => {
     <Container>
       <Header>
         <BackButton onClick={() => navigate('/')}>← 돌아가기</BackButton>
-        <SearchResultTitle>
-          <SearchQuery>"{query}"</SearchQuery> 검색 결과
-        </SearchResultTitle>
+        <HeaderActions>
+          <SearchResultTitle>
+            <SearchQuery>"{query}"</SearchQuery> 검색 결과
+          </SearchResultTitle>
+          <AddBookButtonSmall onClick={() => setIsAddBookModalOpen(true)}>
+            + 새 책 추가
+          </AddBookButtonSmall>
+        </HeaderActions>
       </Header>
 
       {books.length > 0 ? (
@@ -213,9 +289,26 @@ const SearchPage: React.FC = () => {
         </BookGrid>
       ) : (
         <NoResults>
-          검색 결과가 없습니다. 다른 검색어를 입력해보세요.
+          <div>검색 결과가 없습니다.</div>
+          <div style={{ marginTop: theme.spacing.sm }}>
+            원하는 책을 직접 추가해보세요!
+          </div>
         </NoResults>
       )}
+
+      <AddBookForm
+        isOpen={isAddBookModalOpen}
+        onClose={() => setIsAddBookModalOpen(false)}
+        onSubmit={handleAddBook}
+        isLoading={isAddingBook}
+      />
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
     </Container>
   );
 };
