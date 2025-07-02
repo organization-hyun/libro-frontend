@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
-import api from '@/api/apiClient';
+import { booksApi } from '../api/books';
+import { Book } from '../types/book';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import AddBookForm from '../components/common/AddBookForm';
+import Toast from '../components/common/Toast';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -38,6 +42,29 @@ const SearchResultTitle = styled.h1`
   font-weight: 700;
 `;
 
+const HeaderActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${theme.spacing.lg};
+`;
+
+const AddBookButtonSmall = styled.button`
+  background: ${theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: ${theme.borderRadius.sm};
+  padding: ${theme.spacing.xs} ${theme.spacing.md};
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: ${theme.colors.primaryDark};
+  }
+`;
+
 const SearchQuery = styled.span`
   color: ${theme.colors.primary};
 `;
@@ -54,11 +81,34 @@ const BookCard = styled.div`
   padding: ${theme.spacing.lg};
   box-shadow: ${theme.shadows.sm};
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
 
   &:hover {
+    transform: translateY(-8px);
+    box-shadow: ${theme.shadows.lg};
+    border-color: ${theme.colors.primary};
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
     transform: translateY(-4px);
-    box-shadow: ${theme.shadows.md};
   }
 `;
 
@@ -67,23 +117,34 @@ const BookTitle = styled.h2`
   color: ${theme.colors.text.primary};
   margin-bottom: ${theme.spacing.xs};
   font-weight: 600;
+  transition: color 0.2s ease;
+
+  ${BookCard}:hover & {
+    color: ${theme.colors.primary};
+  }
 `;
 
 const BookAuthor = styled.p`
   font-size: 1rem;
   color: ${theme.colors.text.secondary};
   margin-bottom: ${theme.spacing.sm};
+  font-weight: 500;
 `;
 
 const BookDescription = styled.p`
   color: ${theme.colors.text.secondary};
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
   margin-top: ${theme.spacing.md};
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.2s ease;
+
+  ${BookCard}:hover & {
+    color: ${theme.colors.text.primary};
+  }
 `;
 
 const NoResults = styled.div`
@@ -93,18 +154,7 @@ const NoResults = styled.div`
   font-size: 1.1rem;
 `;
 
-const LoadingContainer = styled.div`
-  text-align: center;
-  padding: ${theme.spacing.xl} 0;
-  color: ${theme.colors.text.secondary};
-`;
 
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  description: string;
-}
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -112,6 +162,17 @@ const SearchPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+  const [isAddingBook, setIsAddingBook] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  });
   const query = searchParams.get('q') || '';
 
   useEffect(() => {
@@ -123,8 +184,8 @@ const SearchPage: React.FC = () => {
 
       try {
         setIsLoading(true);
-        const response = await api.get(`/books/search?q=${encodeURIComponent(query)}`);
-        setBooks(response.data);
+        const booksData = await booksApi.searchBooks(query);
+        setBooks(booksData);
         setError(null);
       } catch (err) {
         setError('도서 검색에 실패했습니다.');
@@ -138,7 +199,40 @@ const SearchPage: React.FC = () => {
   }, [query, navigate]);
 
   const handleBookClick = (bookId: number) => {
-    navigate(`/reading-record/${bookId}`);
+    navigate(`/book/${bookId}`);
+  };
+
+  const handleAddBook = async (bookData: {
+    title: string;
+    author: string;
+    description: string;
+  }) => {
+    try {
+      setIsAddingBook(true);
+      const newBook = await booksApi.addBook(bookData);
+      
+      // 새로 추가된 책을 목록에 추가
+      setBooks(prev => [newBook, ...prev]);
+      
+      // 모달 닫기
+      setIsAddBookModalOpen(false);
+      
+      // 성공 메시지
+      setToast({
+        message: '책이 성공적으로 추가되었습니다!',
+        type: 'success',
+        isVisible: true,
+      });
+    } catch (err) {
+      console.error('Error adding book:', err);
+      setToast({
+        message: '책 추가에 실패했습니다. 다시 시도해주세요.',
+        type: 'error',
+        isVisible: true,
+      });
+    } finally {
+      setIsAddingBook(false);
+    }
   };
 
   if (isLoading) {
@@ -150,7 +244,7 @@ const SearchPage: React.FC = () => {
             <SearchQuery>"{query}"</SearchQuery> 검색 중...
           </SearchResultTitle>
         </Header>
-        <LoadingContainer>검색 결과를 불러오는 중입니다...</LoadingContainer>
+        <LoadingSpinner text="검색 결과를 불러오는 중입니다..." />
       </Container>
     );
   }
@@ -173,9 +267,14 @@ const SearchPage: React.FC = () => {
     <Container>
       <Header>
         <BackButton onClick={() => navigate('/')}>← 돌아가기</BackButton>
-        <SearchResultTitle>
-          <SearchQuery>"{query}"</SearchQuery> 검색 결과
-        </SearchResultTitle>
+        <HeaderActions>
+          <SearchResultTitle>
+            <SearchQuery>"{query}"</SearchQuery> 검색 결과
+          </SearchResultTitle>
+          <AddBookButtonSmall onClick={() => setIsAddBookModalOpen(true)}>
+            + 새 책 추가
+          </AddBookButtonSmall>
+        </HeaderActions>
       </Header>
 
       {books.length > 0 ? (
@@ -190,9 +289,26 @@ const SearchPage: React.FC = () => {
         </BookGrid>
       ) : (
         <NoResults>
-          검색 결과가 없습니다. 다른 검색어를 입력해보세요.
+          <div>검색 결과가 없습니다.</div>
+          <div style={{ marginTop: theme.spacing.sm }}>
+            원하는 책을 직접 추가해보세요!
+          </div>
         </NoResults>
       )}
+
+      <AddBookForm
+        isOpen={isAddBookModalOpen}
+        onClose={() => setIsAddBookModalOpen(false)}
+        onSubmit={handleAddBook}
+        isLoading={isAddingBook}
+      />
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
     </Container>
   );
 };

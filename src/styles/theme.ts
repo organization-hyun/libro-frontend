@@ -14,6 +14,7 @@ export const theme = {
     },
     border: '#e0e0e0',
     error: '#dc3545',
+    warning: '#ffc107',
     disabled: '#6c757d',
   },
   spacing: {
