@@ -25,7 +25,7 @@ export const booksApi = {
     title: string;
     author: string;
     description: string;
-  }): Promise<Book> => {
+  }): Promise<{ id: number }> => {
     const response = await api.post('/books', bookData);
     return response.data;
   },
