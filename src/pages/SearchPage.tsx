@@ -209,10 +209,16 @@ const SearchPage: React.FC = () => {
   }) => {
     try {
       setIsAddingBook(true);
-      const newBook = await booksApi.addBook(bookData);
+      const { id } = await booksApi.addBook(bookData);
       
-      // 새로 추가된 책을 목록에 추가
-      setBooks(prev => [newBook, ...prev]);
+      // 새로 추가된 책을 목록에 추가 (ID와 함께 전달받은 데이터로 구성)
+      const newBook: Book = {
+        id,
+        title: bookData.title,
+        author: bookData.author,
+        description: bookData.description,
+      };
+      setBooks((prev: Book[]) => [newBook, ...prev]);
       
       // 모달 닫기
       setIsAddBookModalOpen(false);
