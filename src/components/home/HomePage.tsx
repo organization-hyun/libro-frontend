@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Book } from '../../types/book';
-import { booksApi } from '../../api/books';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -182,113 +180,15 @@ const TimerIcon = styled.span`
   }
 `;
 
-const TrendingSection = styled.div`
-  margin-top: ${theme.spacing.xl};
-  text-align: center;
-  padding: 0 ${theme.spacing.lg};
-`;
-
-const TrendingTitle = styled.h3`
-  font-size: 1.1rem;
-  color: ${theme.colors.text.secondary};
-  margin-bottom: ${theme.spacing.md};
-  font-weight: 500;
-`;
-
-const TrendingBooks = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: ${theme.spacing.md};
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 ${theme.spacing.md};
-
-  ${theme.mediaQueries.mobile} {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: ${theme.spacing.sm};
-  }
-`;
-
-const TrendingBook = styled.button`
-  background: ${theme.colors.background.white};
-  border: 1px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.md};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.xs};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-color: ${theme.colors.primary};
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const BookTitle = styled.span`
-  color: ${theme.colors.text.primary};
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-`;
-
-const BookAuthor = styled.span`
-  color: ${theme.colors.text.secondary};
-  font-size: 0.9rem;
-`;
-
-const LoadingText = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: ${theme.colors.text.secondary};
-`;
-
-const ErrorText = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: ${theme.colors.text.secondary};
-`;
-
 const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [trendingBooks, setTrendingBooks] = useState<Book[]>([]);
-  const [isLoadingTrending, setIsLoadingTrending] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchTrendingBooks = async () => {
-      try {
-        setIsLoadingTrending(true);
-        const books = await booksApi.getPopularBooks();
-        setTrendingBooks(books);
-      } catch (error) {
-        console.error('트렌딩 책을 불러오는데 실패했습니다:', error);
-        setTrendingBooks([]);
-      } finally {
-        setIsLoadingTrending(false);
-      }
-    };
-
-    fetchTrendingBooks();
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
-  };
-
-  const handleTrendingBookClick = (bookTitle: string) => {
-    navigate(`/search?q=${encodeURIComponent(bookTitle)}`);
   };
 
   const handleTimerClick = () => {
@@ -320,24 +220,6 @@ const HomePage: React.FC = () => {
           <TimerIcon>⏰</TimerIcon>
           오늘의 독서 시작하기
         </TimerButton>
-        
-        <TrendingSection>
-          <TrendingTitle>최근 자주 검색된 도서</TrendingTitle>
-          <TrendingBooks>
-            {isLoadingTrending ? (
-              <LoadingText>인기 도서를 불러오는 중...</LoadingText>
-            ) : trendingBooks.length > 0 ? (
-              trendingBooks.map((book) => (
-                <TrendingBook key={book.id} onClick={() => handleTrendingBookClick(book.title)}>
-                  <BookTitle>{book.title}</BookTitle>
-                  <BookAuthor>{book.author}</BookAuthor>
-                </TrendingBook>
-              ))
-            ) : (
-              <ErrorText>인기 도서를 불러올 수 없습니다.</ErrorText>
-            )}
-          </TrendingBooks>
-        </TrendingSection>
       </SearchContainer>
     </HomeContainer>
   );
