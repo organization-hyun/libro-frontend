@@ -8,6 +8,7 @@ import ReadingGroupDetail from './pages/ReadingGroupDetail';
 import Login from './pages/Login';
 import SearchPage from './pages/SearchPage';
 import BookDetail from './pages/BookDetail';
+import ReadingTimerPage from './pages/ReadingTimerPage';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import {logout} from "@api/auth";
@@ -104,75 +105,6 @@ const HomePage = styled.div`
   }
 `;
 
-const Title = styled.h1`
-  font-size: 3rem;
-  color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.sm};
-
-  ${theme.mediaQueries.mobile} {
-    font-size: 2rem;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${theme.colors.text.secondary};
-  margin-bottom: ${theme.spacing.xl};
-
-  ${theme.mediaQueries.mobile} {
-    font-size: 1rem;
-    margin-bottom: ${theme.spacing.lg};
-  }
-`;
-
-const Features = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: ${theme.spacing.lg};
-  margin-top: ${theme.spacing.xl};
-
-  ${theme.mediaQueries.mobile} {
-    grid-template-columns: 1fr;
-    gap: ${theme.spacing.md};
-    margin-top: ${theme.spacing.lg};
-  }
-`;
-
-const FeatureItem = styled.div`
-  background: ${theme.colors.background.white};
-  padding: ${theme.spacing.lg};
-  border-radius: ${theme.borderRadius.md};
-  box-shadow: ${theme.shadows.sm};
-  transition: transform ${theme.transitions.default};
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  ${theme.mediaQueries.mobile} {
-    padding: ${theme.spacing.md};
-  }
-`;
-
-const FeatureTitle = styled.h3`
-  font-size: 1.5rem;
-  color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.sm};
-
-  ${theme.mediaQueries.mobile} {
-    font-size: 1.2rem;
-  }
-`;
-
-const FeatureDescription = styled.p`
-  color: ${theme.colors.text.secondary};
-  line-height: 1.6;
-
-  ${theme.mediaQueries.mobile} {
-    font-size: 0.9rem;
-  }
-`;
-
 const SearchContainer = styled.div`
   width: 100%;
   max-width: 800px;
@@ -205,29 +137,21 @@ const SearchSubtitle = styled.p`
 
 const SearchBox = styled.div`
   position: relative;
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: ${theme.spacing.xl};
+  max-width: 600px;
+  margin: 0 auto ${theme.spacing.xl};
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  box-sizing: border-box;
   padding: ${theme.spacing.lg};
-  font-size: 1.1rem;
   border: 2px solid ${theme.colors.border};
   border-radius: ${theme.borderRadius.lg};
-  background: ${theme.colors.background.white};
-  transition: all 0.2s ease;
+  font-size: 1.1rem;
+  outline: none;
+  transition: border-color ${theme.transitions.default};
 
   &:focus {
-    outline: none;
     border-color: ${theme.colors.primary};
-    box-shadow: 0 0 0 3px ${theme.colors.primary}20;
-  }
-
-  &::placeholder {
-    color: ${theme.colors.text.light};
   }
 
   ${theme.mediaQueries.mobile} {
@@ -262,6 +186,81 @@ const SearchButton = styled.button`
     min-width: 40px;
     padding: ${theme.spacing.xs} 0.7rem;
     height: 70%;
+  }
+`;
+
+const TimerButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${theme.spacing.sm};
+  padding: ${theme.spacing.xl} ${theme.spacing.xl};
+  background: linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%);
+  color: white;
+  border: none;
+  border-radius: ${theme.borderRadius.lg};
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-top: ${theme.spacing.xl};
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+  min-width: 280px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.01);
+    transition: all 0.1s;
+  }
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.lg} ${theme.spacing.lg};
+    font-size: 1.1rem;
+    min-width: 240px;
+    gap: ${theme.spacing.xs};
+  }
+`;
+
+const TimerIcon = styled.span`
+  font-size: 1.4rem;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1.2rem;
   }
 `;
 
@@ -337,6 +336,75 @@ const IntroductionPage = styled.div`
   }
 `;
 
+const Title = styled.h1`
+  font-size: 3rem;
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.sm};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 2rem;
+  }
+`;
+
+const Subtitle = styled.p`
+  font-size: 1.2rem;
+  color: ${theme.colors.text.secondary};
+  margin-bottom: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1rem;
+    margin-bottom: ${theme.spacing.lg};
+  }
+`;
+
+const Features = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: ${theme.spacing.lg};
+  margin-top: ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    grid-template-columns: 1fr;
+    gap: ${theme.spacing.md};
+    margin-top: ${theme.spacing.lg};
+  }
+`;
+
+const FeatureItem = styled.div`
+  background: ${theme.colors.background.white};
+  padding: ${theme.spacing.lg};
+  border-radius: ${theme.borderRadius.md};
+  box-shadow: ${theme.shadows.sm};
+  transition: transform ${theme.transitions.default};
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  ${theme.mediaQueries.mobile} {
+    padding: ${theme.spacing.md};
+  }
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.5rem;
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.sm};
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 1.2rem;
+  }
+`;
+
+const FeatureDescription = styled.p`
+  color: ${theme.colors.text.secondary};
+  line-height: 1.6;
+
+  ${theme.mediaQueries.mobile} {
+    font-size: 0.9rem;
+  }
+`;
+
 function App() {
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
@@ -379,6 +447,7 @@ function App() {
           <Logo to="/">LIBRO</Logo>
           <NavLinks>
             <NavLink to="/introduction">소개</NavLink>
+            <NavLink to="/reading-timer">독서 타이머</NavLink>
             <NavLink to="/reading-record">독서 기록</NavLink>
             <NavLink to="/reading-group">독서 모임</NavLink>
             {!isAuthenticated ? (
@@ -411,6 +480,12 @@ function App() {
                     <SearchButton type="submit">검색</SearchButton>
                   </SearchBox>
                 </form>
+                
+                <TimerButton to="/reading-timer">
+                  <TimerIcon>⏰</TimerIcon>
+                  오늘의 독서 시작하기
+                </TimerButton>
+                
                 <TrendingSection>
                   <TrendingTitle>최근 자주 검색된 도서</TrendingTitle>
                   <TrendingBooks>
@@ -462,6 +537,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/book/:bookId" element={<BookDetail />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reading-timer" element={<ReadingTimerPage />} />
           <Route 
             path="/reading-record" 
             element={

@@ -2,6 +2,8 @@ export const theme = {
   colors: {
     primary: '#007bff',
     primaryDark: '#0056b3',
+    secondary: '#28a745',
+    secondaryDark: '#218838',
     text: {
       primary: '#333',
       secondary: '#666',
@@ -14,6 +16,7 @@ export const theme = {
     },
     border: '#e0e0e0',
     error: '#dc3545',
+    errorDark: '#c82333',
     warning: '#ffc107',
     disabled: '#6c757d',
   },
@@ -28,6 +31,7 @@ export const theme = {
     sm: '0.25rem',
     md: '0.5rem',
     lg: '1rem',
+    full: '9999px',
   },
   shadows: {
     sm: '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)',
