@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import ReadingTimer from '../components/reading/ReadingTimer';
-import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -78,7 +77,6 @@ const ModalButton = styled.button`
 `;
 
 const ReadingTimerPage: React.FC = () => {
-  const navigate = useNavigate();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const handleTimerComplete = () => {
