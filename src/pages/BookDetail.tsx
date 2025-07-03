@@ -220,6 +220,28 @@ const ErrorContainer = styled.div`
   color: ${theme.colors.error};
 `;
 
+const InteractionBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: ${theme.spacing.xl};
+  border-top: 1px solid ${theme.colors.border};
+  border-bottom: 1px solid ${theme.colors.border};
+  padding: ${theme.spacing.md} 0;
+`;
+
+const InteractionButton = styled.button`
+  flex: 1;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${theme.spacing.xs};
+  color: ${theme.colors.text.secondary};
+  font-size: 0.9rem;
+  cursor: pointer;
+`;
+
 const BookDetailPage: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const navigate = useNavigate();
@@ -249,6 +271,17 @@ const BookDetailPage: React.FC = () => {
 
     fetchBookDetail();
   }, [bookId, navigate]);
+
+  const [isWish, setIsWish] = useState(false);
+
+  const toggleWish = () => {
+    setIsWish(prev => !prev);
+  };
+const [isWatching, setIsWatching] = useState(false);
+
+  const toggleWatching = () => {
+    setIsWatching(prev => !prev);
+  };
 
   const handleStartReading = () => {
     if (book) {
@@ -304,6 +337,40 @@ const BookDetailPage: React.FC = () => {
           </ActionButtons>
         </BookInfo>
       </BookHeader>
+
+      <InteractionBar>
+        <InteractionButton onClick={toggleWish}>
+          <img
+              src={isWish ? '/images/icons/icon_wish_on.png' : '/images/icons/icon_wish_off.png'}
+              alt="보고싶어요 아이콘"
+              width={24}
+              height={24}
+          />
+          보고싶어요
+        </InteractionButton>
+        <InteractionButton>
+          <img
+              src='/images/icons/icon_comment_off.png'
+              alt="코멘트 아이콘"
+              width={24}
+              height={24}
+          />
+          코멘트
+        </InteractionButton>
+        <InteractionButton onClick={toggleWatching}>
+          <img
+              src={isWatching ? '/images/icons/icon_watching_on.png' : '/images/icons/icon_watching_off.png'}
+              alt="보는중 아이콘"
+              width={24}
+              height={24}
+          />
+          보는중
+        </InteractionButton>
+        <InteractionButton>
+          <img src="/images/icons/icon_more.png" alt="더보기 아이콘" width={24} height={24} />
+          더보기
+        </InteractionButton>
+      </InteractionBar>
 
       <ContentSection>
         <SectionTitle>책 소개</SectionTitle>
