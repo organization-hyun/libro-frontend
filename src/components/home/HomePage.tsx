@@ -16,8 +16,9 @@ const HomeContainer = styled.div`
   z-index: 1;
 
   ${theme.mediaQueries.mobile} {
-    padding: ${theme.spacing.lg} ${theme.spacing.sm};
+    padding: ${theme.spacing.lg} ${theme.spacing.md};
     margin-top: -40px;
+    min-height: calc(100vh - 60px);
   }
 `;
 
@@ -26,6 +27,11 @@ const SearchContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+
+  ${theme.mediaQueries.mobile} {
+    max-width: 100%;
+    padding: 0 ${theme.spacing.sm};
+  }
 `;
 
 const SearchTitle = styled.h1`
@@ -39,22 +45,15 @@ const SearchTitle = styled.h1`
   }
 `;
 
-const SearchSubtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${theme.colors.text.secondary};
-  margin-bottom: ${theme.spacing.xl};
-  line-height: 1.6;
-
-  ${theme.mediaQueries.mobile} {
-    font-size: 1rem;
-    margin-bottom: ${theme.spacing.lg};
-  }
-`;
-
 const SearchBox = styled.div`
   position: relative;
   max-width: 600px;
   margin: 0 auto ${theme.spacing.xl};
+
+  ${theme.mediaQueries.mobile} {
+    max-width: 100%;
+    margin: 0 auto ${theme.spacing.lg};
+  }
 `;
 
 const SearchInput = styled.input`
@@ -65,6 +64,7 @@ const SearchInput = styled.input`
   font-size: 1.1rem;
   outline: none;
   transition: border-color ${theme.transitions.default};
+  box-sizing: border-box;
 
   &:focus {
     border-color: ${theme.colors.primary};
@@ -74,6 +74,8 @@ const SearchInput = styled.input`
     padding: ${theme.spacing.md};
     font-size: 1rem;
     padding-right: 60px;
+    width: 100%;
+    box-sizing: border-box;
   }
 `;
 
@@ -156,6 +158,8 @@ const TimerButton = styled.div`
     font-size: 1.1rem;
     min-width: 240px;
     gap: ${theme.spacing.xs};
+    width: 100%;
+    max-width: 300px;
   }
 `;
 
@@ -199,9 +203,6 @@ const HomePage: React.FC = () => {
     <HomeContainer>
       <SearchContainer>
         <SearchTitle>LIBRO</SearchTitle>
-        <SearchSubtitle>
-          도서명이나 저자명을 검색하여 원하는 책을 찾아보세요
-        </SearchSubtitle>
         
         <form onSubmit={handleSearch}>
           <SearchBox>
