@@ -12,4 +12,16 @@ export interface ReadingRecord {
   publishedDate?: string;
   pageCount?: number;
   categories?: string[];
+}
+
+export interface ReadingCompletion {
+  id: number;
+  date: string; // YYYY-MM-DD 형식
+  duration: number; // 분 단위
+  bookId?: number;
+  note?: string;
+}
+
+export interface ReadingCompletionResponse {
+  id: number;
 } 
