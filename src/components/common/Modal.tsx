@@ -6,7 +6,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  title: string;
+  title?: string;
 }
 
 const ModalOverlay = styled.div<{ isOpen: boolean }>`
@@ -87,10 +87,12 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }
   return (
     <ModalOverlay isOpen={isOpen} onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>{title}</ModalTitle>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
-        </ModalHeader>
+        {title && (
+          <ModalHeader>
+            <ModalTitle>{title}</ModalTitle>
+            <CloseButton onClick={onClose}>&times;</CloseButton>
+          </ModalHeader>
+        )}
         {children}
       </ModalContent>
     </ModalOverlay>

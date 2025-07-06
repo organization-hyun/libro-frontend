@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { ReadingCompletion } from '../../types/readingRecord';
 import { readingCompletionApi } from '../../api/readingRecord';
+import ReadingRecordModal from './ReadingRecordModal';
+import { formatDateToYYYYMMDD } from '../../utils/dateUtils';
 
 const CalendarContainer = styled.div`
   background: ${theme.colors.background.white};
@@ -70,6 +72,8 @@ const DayCell = styled.div<{
   cursor: pointer;
   position: relative;
   transition: all ${theme.transitions.default};
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   
   background: ${props => {
     if (props.isSelected) return theme.colors.primary;
@@ -83,9 +87,20 @@ const DayCell = styled.div<{
     return theme.colors.text.light;
   }};
 
+  border: ${props => {
+    if (props.isSelected) return `2px solid ${theme.colors.primary}`;
+    if (props.hasReadingRecord) return `1px solid ${theme.colors.primary}20`;
+    return '1px solid transparent';
+  }};
+
   &:hover {
     background: ${props => props.isSelected ? theme.colors.primaryDark : theme.colors.background.light};
     transform: translateY(-1px);
+    box-shadow: ${props => props.hasReadingRecord ? theme.shadows.sm : 'none'};
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 
   ${theme.mediaQueries.mobile} {
@@ -152,6 +167,7 @@ const ReadingCalendar: React.FC<ReadingCalendarProps> = ({ onDayClick }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [readingCompletions, setReadingCompletions] = useState<ReadingCompletion[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
@@ -227,12 +243,7 @@ const ReadingCalendar: React.FC<ReadingCalendarProps> = ({ onDayClick }) => {
     return Math.min(totalDuration / 120, 1);
   };
 
-  const formatDateToYYYYMMDD = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+
 
   const isToday = (date: Date) => {
     const today = new Date();
@@ -241,8 +252,14 @@ const ReadingCalendar: React.FC<ReadingCalendarProps> = ({ onDayClick }) => {
 
   const handleDayClick = (date: Date) => {
     const dateString = formatDateToYYYYMMDD(date);
-    setSelectedDate(selectedDate === dateString ? null : dateString);
+    setSelectedDate(dateString);
+    setIsModalOpen(true);
     onDayClick?.(dateString);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedDate(null);
   };
 
   const goToPreviousMonth = () => {
@@ -253,9 +270,7 @@ const ReadingCalendar: React.FC<ReadingCalendarProps> = ({ onDayClick }) => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-
-
-  const getMonthStats = () => {
+  const stats = useMemo(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth() + 1;
     const monthCompletions = readingCompletions.filter(completion => {
@@ -277,67 +292,73 @@ const ReadingCalendar: React.FC<ReadingCalendarProps> = ({ onDayClick }) => {
       totalMinutes,
       totalSessions: monthCompletions.length
     };
-  };
-
-  const stats = getMonthStats();
+  }, [currentDate, readingCompletions]);
 
   return (
-    <CalendarContainer>
-      <CalendarHeader>
-        <NavigationButton onClick={goToPreviousMonth}>‹</NavigationButton>
-        <MonthTitle>
-          {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
-        </MonthTitle>
-        <NavigationButton onClick={goToNextMonth}>›</NavigationButton>
-      </CalendarHeader>
+    <>
+      <CalendarContainer>
+        <CalendarHeader>
+          <NavigationButton onClick={goToPreviousMonth}>‹</NavigationButton>
+          <MonthTitle>
+            {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
+          </MonthTitle>
+          <NavigationButton onClick={goToNextMonth}>›</NavigationButton>
+        </CalendarHeader>
 
-      <CalendarGrid>
-        {daysOfWeek.map(day => (
-          <DayHeader key={day}>{day}</DayHeader>
-        ))}
-        
-        {getDaysInMonth(currentDate).map((day, index) => {
-          const dateString = formatDateToYYYYMMDD(day.date);
-          const intensity = getReadingIntensity(day.date);
+        <CalendarGrid>
+          {daysOfWeek.map(day => (
+            <DayHeader key={day}>{day}</DayHeader>
+          ))}
           
-          return (
-            <DayCell
-              key={index}
-              isCurrentMonth={day.isCurrentMonth}
-              isToday={isToday(day.date)}
-              hasReadingRecord={intensity > 0}
-              isSelected={selectedDate === dateString}
-              onClick={() => handleDayClick(day.date)}
-            >
-              <DayNumber>{day.date.getDate()}</DayNumber>
-              {intensity > 0 && <ReadingIndicator intensity={intensity} />}
-            </DayCell>
-          );
-        })}
-      </CalendarGrid>
+          {getDaysInMonth(currentDate).map((day, index) => {
+            const dateString = formatDateToYYYYMMDD(day.date);
+            const intensity = getReadingIntensity(day.date);
+            
+            return (
+              <DayCell
+                key={index}
+                isCurrentMonth={day.isCurrentMonth}
+                isToday={isToday(day.date)}
+                hasReadingRecord={intensity > 0}
+                isSelected={selectedDate === dateString}
+                onClick={() => handleDayClick(day.date)}
+              >
+                <DayNumber>{day.date.getDate()}</DayNumber>
+                {intensity > 0 && <ReadingIndicator intensity={intensity} />}
+              </DayCell>
+            );
+          })}
+        </CalendarGrid>
 
-      <StatsContainer>
-        <StatItem>
-          <StatValue>{stats.totalDays}</StatValue>
-          <StatLabel>독서한 날</StatLabel>
-        </StatItem>
-        <StatItem>
-          <StatValue>{stats.totalSessions}</StatValue>
-          <StatLabel>독서 횟수</StatLabel>
-        </StatItem>
-        <StatItem>
-          <StatValue>{Math.round(stats.totalMinutes / 60 * 10) / 10}</StatValue>
-          <StatLabel>총 시간(시간)</StatLabel>
-        </StatItem>
-      </StatsContainer>
+        <StatsContainer>
+          <StatItem>
+            <StatValue>{stats.totalDays}</StatValue>
+            <StatLabel>독서한 날</StatLabel>
+          </StatItem>
+          <StatItem>
+            <StatValue>{stats.totalSessions}</StatValue>
+            <StatLabel>독서 횟수</StatLabel>
+          </StatItem>
+          <StatItem>
+            <StatValue>{Math.round(stats.totalMinutes / 60 * 10) / 10}</StatValue>
+            <StatLabel>총 시간(시간)</StatLabel>
+          </StatItem>
+        </StatsContainer>
 
-      {readingCompletions.length === 0 && !isLoading && (
-        <EmptyState>
-          이번 달에는 아직 독서 기록이 없습니다.<br />
-          독서 타이머를 사용해서 첫 기록을 남겨보세요!
-        </EmptyState>
-      )}
-    </CalendarContainer>
+        {readingCompletions.length === 0 && !isLoading && (
+          <EmptyState>
+            이번 달에는 아직 독서 기록이 없습니다.<br />
+            독서 타이머를 사용해서 첫 기록을 남겨보세요!
+          </EmptyState>
+        )}
+      </CalendarContainer>
+
+      <ReadingRecordModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        selectedDate={selectedDate}
+      />
+    </>
   );
 };
 
