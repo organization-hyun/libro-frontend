@@ -87,7 +87,6 @@ const Header: React.FC = () => {
       <Nav>
         <Logo to="/">LIBRO</Logo>
         <NavLinks>
-          <NavLink to="/introduction">소개</NavLink>
           <NavLink to="/reading-timer">독서 타이머</NavLink>
           <NavLink to="/reading-record">독서 기록</NavLink>
           <NavLink to="/reading-group">독서 모임</NavLink>
