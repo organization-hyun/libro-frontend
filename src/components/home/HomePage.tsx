@@ -159,7 +159,8 @@ const TimerButton = styled.div`
     min-width: 240px;
     gap: ${theme.spacing.xs};
     width: 100%;
-    max-width: 300px;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 `;
 
