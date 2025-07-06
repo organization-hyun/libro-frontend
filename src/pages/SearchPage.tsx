@@ -4,9 +4,7 @@ import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { booksApi } from '../api/books';
 import { Book } from '../types/book';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import AddBookForm from '../components/common/AddBookForm';
-import Toast from '../components/common/Toast';
+import { LoadingSpinner, AddBookForm, Toast, BackButton } from '../components/common';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -18,22 +16,7 @@ const Header = styled.div`
   margin-bottom: ${theme.spacing.xl};
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: ${theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  padding: 0;
-  margin-bottom: ${theme.spacing.md};
 
-  &:hover {
-    color: ${theme.colors.primary};
-  }
-`;
 
 const SearchResultTitle = styled.h1`
   font-size: 2rem;
@@ -245,7 +228,7 @@ const SearchPage: React.FC = () => {
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate('/')}>← 돌아가기</BackButton>
+          <BackButton onClick={() => navigate('/')} />
           <SearchResultTitle>
             <SearchQuery>"{query}"</SearchQuery> 검색 중...
           </SearchResultTitle>
@@ -259,7 +242,7 @@ const SearchPage: React.FC = () => {
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate('/')}>← 돌아가기</BackButton>
+          <BackButton onClick={() => navigate('/')} />
           <SearchResultTitle>
             <SearchQuery>"{query}"</SearchQuery> 검색 결과
           </SearchResultTitle>
@@ -272,7 +255,7 @@ const SearchPage: React.FC = () => {
   return (
     <Container>
       <Header>
-        <BackButton onClick={() => navigate('/')}>← 돌아가기</BackButton>
+        <BackButton onClick={() => navigate('/')} />
         <HeaderActions>
           <SearchResultTitle>
             <SearchQuery>"{query}"</SearchQuery> 검색 결과

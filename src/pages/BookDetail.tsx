@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { BookDetail } from '../types/book';
 import { booksApi } from '../api/books';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import { LoadingSpinner, BackButton, Button } from '../components/common';
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -16,22 +16,7 @@ const Header = styled.div`
   margin-bottom: ${theme.spacing.xl};
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: ${theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  padding: 0;
-  margin-bottom: ${theme.spacing.md};
 
-  &:hover {
-    color: ${theme.colors.primary};
-  }
-`;
 
 const BookHeader = styled.div`
   display: flex;
@@ -97,44 +82,7 @@ const ActionButtons = styled.div`
   margin-top: ${theme.spacing.lg};
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: ${theme.spacing.sm} ${theme.spacing.lg};
-  border: none;
-  border-radius: ${theme.borderRadius.md};
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all ${theme.transitions.default};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${theme.spacing.xs};
-  min-width: 140px;
 
-  ${({ variant = 'secondary' }) => {
-    switch (variant) {
-      case 'primary':
-        return `
-          background: ${theme.colors.primary};
-          color: white;
-          &:hover {
-            background: ${theme.colors.primaryDark};
-            transform: translateY(-2px);
-          }
-        `;
-      default:
-        return `
-          background: ${theme.colors.background.light};
-          color: ${theme.colors.text.secondary};
-          &:hover {
-            background: ${theme.colors.background.white};
-            color: ${theme.colors.text.primary};
-            transform: translateY(-2px);
-          }
-        `;
-    }
-  }}
-`;
 
 const ContentSection = styled.section`
   margin-bottom: ${theme.spacing.xl};
@@ -297,7 +245,7 @@ const [isWatching, setIsWatching] = useState(false);
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate(-1)}>← 돌아가기</BackButton>
+          <BackButton onClick={() => navigate(-1)} />
         </Header>
         <LoadingSpinner text="책 정보를 불러오는 중입니다..." />
       </Container>
@@ -308,7 +256,7 @@ const [isWatching, setIsWatching] = useState(false);
     return (
       <Container>
         <Header>
-          <BackButton onClick={() => navigate(-1)}>← 돌아가기</BackButton>
+          <BackButton onClick={() => navigate(-1)} />
         </Header>
         <ErrorContainer>{error || '책을 찾을 수 없습니다.'}</ErrorContainer>
       </Container>
@@ -318,7 +266,7 @@ const [isWatching, setIsWatching] = useState(false);
   return (
     <Container>
       <Header>
-        <BackButton onClick={() => navigate(-1)}>← 돌아가기</BackButton>
+        <BackButton onClick={() => navigate(-1)} />
       </Header>
 
       <BookHeader>

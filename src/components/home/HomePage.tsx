@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
+import { Input } from '../common';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -56,28 +57,7 @@ const SearchBox = styled.div`
   }
 `;
 
-const SearchInput = styled.input`
-  width: 100%;
-  padding: ${theme.spacing.lg};
-  border: 2px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.lg};
-  font-size: 1.1rem;
-  outline: none;
-  transition: border-color ${theme.transitions.default};
-  box-sizing: border-box;
 
-  &:focus {
-    border-color: ${theme.colors.primary};
-  }
-
-  ${theme.mediaQueries.mobile} {
-    padding: ${theme.spacing.md};
-    font-size: 1rem;
-    padding-right: 60px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-`;
 
 const SearchButton = styled.button`
   position: absolute;
@@ -207,12 +187,14 @@ const HomePage: React.FC = () => {
         
         <form onSubmit={handleSearch}>
           <SearchBox>
-            <SearchInput
+            <Input
               type="text"
               placeholder="도서명 또는 저자명을 입력하세요"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
+              fullWidth
+              size="lg"
             />
             <SearchButton type="submit">검색</SearchButton>
           </SearchBox>

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { ReadingRecord } from '../types/readingRecord';
 import api from '@/api/apiClient';
+import { BackButton, Button } from '../components/common';
 
 const DetailContainer = styled.div`
   padding: ${theme.spacing.lg};
@@ -15,22 +16,7 @@ const Header = styled.div`
   margin-bottom: ${theme.spacing.xl};
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: ${theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  padding: 0;
-  margin-bottom: ${theme.spacing.md};
 
-  &:hover {
-    color: ${theme.colors.primary};
-  }
-`;
 
 const BookInfo = styled.div`
   text-align: center;
@@ -151,38 +137,7 @@ const AddButtonWrapper = styled.div`
   justify-content: center;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: ${theme.spacing.sm} ${theme.spacing.lg};
-  border: none;
-  border-radius: ${theme.borderRadius.sm};
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all ${theme.transitions.default};
 
-  ${({ variant = 'secondary' }) =>
-    variant === 'primary'
-      ? `
-    background: ${theme.colors.primary};
-    color: white;
-    &:hover {
-      background: ${theme.colors.primaryDark};
-    }
-    &:active {
-      transform: translateY(1px);
-    }
-  `
-      : `
-    background: transparent;
-    color: ${theme.colors.text.secondary};
-    &:hover {
-      color: ${theme.colors.text.primary};
-    }
-    &:active {
-      transform: translateY(1px);
-    }
-  `}
-`;
 
 const AddButton = styled(Button)`
   width: 100%;
@@ -336,9 +291,7 @@ const ReadingRecordDetail: React.FC = () => {
     return (
       <DetailContainer>
         <Header>
-          <BackButton onClick={() => navigate('/reading-record')}>
-            ← 돌아가기
-          </BackButton>
+          <BackButton onClick={() => navigate('/reading-record')} />
         </Header>
         <div>로딩 중...</div>
       </DetailContainer>
@@ -349,9 +302,7 @@ const ReadingRecordDetail: React.FC = () => {
     return (
       <DetailContainer>
         <Header>
-          <BackButton onClick={() => navigate('/reading-record')}>
-            ← 돌아가기
-          </BackButton>
+          <BackButton onClick={() => navigate('/reading-record')} />
         </Header>
         <div style={{ color: 'red' }}>{error || '도서를 찾을 수 없습니다.'}</div>
       </DetailContainer>
@@ -411,9 +362,7 @@ const ReadingRecordDetail: React.FC = () => {
   return (
     <DetailContainer>
       <Header>
-        <BackButton onClick={() => navigate('/reading-record')}>
-          ← 돌아가기
-        </BackButton>
+        <BackButton onClick={() => navigate('/reading-record')} />
         <BookInfo>
           <BookTitle>{readingRecord.bookTitle}</BookTitle>
           <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>

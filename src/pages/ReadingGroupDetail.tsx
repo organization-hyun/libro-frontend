@@ -5,6 +5,7 @@ import { theme } from '../styles/theme';
 import { ReadingGroupItem, SharedReadingRecord, getReadingGroupById, getSharedReadingRecords, shareReadingRecord } from '../api/readingGroup';
 import api from '@/api/apiClient';
 import { ReadingRecord } from '../types/readingRecord';
+import { BackButton, CloseButton } from '../components/common';
 
 const DetailContainer = styled.div`
   padding: ${theme.spacing.lg};
@@ -16,22 +17,7 @@ const Header = styled.div`
   margin-bottom: ${theme.spacing.xl};
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  color: ${theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: ${theme.spacing.xs};
-  padding: 0;
-  margin-bottom: ${theme.spacing.md};
 
-  &:hover {
-    color: ${theme.colors.primary};
-  }
-`;
 
 const BookInfo = styled.div`
   text-align: center;
@@ -221,18 +207,7 @@ const ModalTitle = styled.h3`
   color: ${theme.colors.text.primary};
 `;
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: ${theme.colors.text.secondary};
-  cursor: pointer;
-  padding: 0;
 
-  &:hover {
-    color: ${theme.colors.text.primary};
-  }
-`;
 
 const EmptyMessage = styled.p`
   text-align: center;
@@ -316,9 +291,7 @@ const ReadingGroupDetail: React.FC = () => {
   if (error || !readingGroup) {
     return (
       <DetailContainer>
-        <BackButton onClick={() => navigate('/reading-group')}>
-          ← 돌아가기
-        </BackButton>
+        <BackButton onClick={() => navigate('/reading-group')} />
         <ErrorText>{error || 'Reading group not found'}</ErrorText>
       </DetailContainer>
     );
@@ -327,9 +300,7 @@ const ReadingGroupDetail: React.FC = () => {
   return (
     <DetailContainer>
       <Header>
-        <BackButton onClick={() => navigate('/reading-group')}>
-          ← 돌아가기
-        </BackButton>
+        <BackButton onClick={() => navigate('/reading-group')} />
         <BookInfo>
           <BookTitle>{readingGroup.bookTitle}</BookTitle>
           <BookAuthor>{readingGroup.bookAuthor}</BookAuthor>
@@ -363,7 +334,7 @@ const ReadingGroupDetail: React.FC = () => {
           <ModalContent>
             <ModalHeader>
               <ModalTitle>공유할 독서 기록 선택</ModalTitle>
-              <CloseButton onClick={() => setIsShareModalOpen(false)}>&times;</CloseButton>
+              <CloseButton onClick={() => setIsShareModalOpen(false)} />
             </ModalHeader>
             
             {isLoadingRecords ? (
