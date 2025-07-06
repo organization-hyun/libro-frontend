@@ -450,7 +450,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
   };
 
   const startTimer = useCallback(() => {
-    const totalTime = selectedTime * 1;
+    const totalTime = selectedTime * 60;
     setTimeLeft(totalTime);
     setIsRunning(true);
     setIsPaused(false);
