@@ -419,6 +419,41 @@ const CompletionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   }
 `;
 
+const ModeSelectionContainer = styled.div`
+  margin-bottom: ${theme.spacing.xl};
+`;
+
+const ModeOptions = styled.div`
+  display: flex;
+  gap: ${theme.spacing.md};
+  justify-content: center;
+  margin-bottom: ${theme.spacing.lg};
+`;
+
+const ModeOption = styled.button<{ selected: boolean }>`
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  border: 2px solid ${props => props.selected ? theme.colors.primary : theme.colors.border};
+  border-radius: ${theme.borderRadius.md};
+  background: ${props => props.selected ? theme.colors.primary : theme.colors.background.white};
+  color: ${props => props.selected ? 'white' : theme.colors.text.primary};
+  font-weight: 600;
+  cursor: pointer;
+  transition: all ${theme.transitions.default};
+  min-width: 120px;
+
+  &:hover {
+    border-color: ${theme.colors.primary};
+    transform: translateY(-2px);
+  }
+`;
+
+const ModeDescription = styled.p`
+  font-size: 0.9rem;
+  color: ${theme.colors.text.secondary};
+  text-align: center;
+  margin-bottom: ${theme.spacing.lg};
+`;
+
 interface ReadingTimerProps {
   onComplete?: () => void;
   selectedBook?: {
@@ -428,9 +463,13 @@ interface ReadingTimerProps {
   };
 }
 
+type TimerMode = 'timer' | 'stopwatch';
+
 const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook }) => {
+  const [mode, setMode] = useState<TimerMode>('timer');
   const [selectedTime, setSelectedTime] = useState<number>(10);
   const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [showCompletionModal, setShowCompletionModal] = useState<boolean>(false);
@@ -445,16 +484,25 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
   };
 
   const getProgress = (): number => {
-    const totalTime = selectedTime * 60;
-    return totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0;
+    if (mode === 'timer') {
+      const totalTime = selectedTime * 60;
+      return totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 0;
+    } else {
+      // 스탑워치 모드에서는 진행률을 표시하지 않음
+      return 0;
+    }
   };
 
   const startTimer = useCallback(() => {
-    const totalTime = selectedTime * 60;
-    setTimeLeft(totalTime);
+    if (mode === 'timer') {
+      const totalTime = selectedTime * 60;
+      setTimeLeft(totalTime);
+    } else {
+      setElapsedTime(0);
+    }
     setIsRunning(true);
     setIsPaused(false);
-  }, [selectedTime]);
+  }, [selectedTime, mode]);
 
   const pauseTimer = () => {
     setIsPaused(true);
@@ -465,14 +513,29 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
   };
 
   const resetTimer = () => {
-    setTimeLeft(0);
-    setIsRunning(false);
-    setIsPaused(false);
-    // 기록은 보존 (실수로 종료했을 때를 대비)
+    if (mode === 'stopwatch' && elapsedTime > 0) {
+      // 스탑워치 모드에서 시간이 측정된 경우 모달 표시
+      setShowCompletionModal(true);
+    } else {
+      // 타이머 모드이거나 스탑워치에서 시간이 0인 경우 그냥 종료
+      setTimeLeft(0);
+      setElapsedTime(0);
+      setIsRunning(false);
+      setIsPaused(false);
+    }
   };
 
   const handleTimeOptionClick = (time: number) => {
     setSelectedTime(time);
+  };
+
+  const handleModeChange = (newMode: TimerMode) => {
+    setMode(newMode);
+    // 모드 변경 시 타이머 상태 초기화
+    setTimeLeft(0);
+    setElapsedTime(0);
+    setIsRunning(false);
+    setIsPaused(false);
   };
 
   const formatDateToYYYYMMDD = (date: Date): string => {
@@ -485,9 +548,11 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
   const saveReadingCompletion = async () => {
     try {
       const today = formatDateToYYYYMMDD(new Date());
+      const duration = mode === 'timer' ? selectedTime : Math.ceil(elapsedTime / 60);
+      
       await readingCompletionApi.createReadingCompletion({
         date: today,
-        duration: selectedTime,
+        duration: duration,
         bookId: selectedBook?.id,
         note: completionNotes.trim() || undefined
       });
@@ -495,6 +560,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
       setShowCompletionModal(false);
       setCompletionNotes('');
       setTimeLeft(0);
+      setElapsedTime(0);
       setIsRunning(false);
       setIsPaused(false);
       onComplete?.();
@@ -506,18 +572,23 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    if (isRunning && !isPaused && timeLeft > 0) {
+    if (isRunning && !isPaused) {
       interval = setInterval(() => {
-        setTimeLeft(prev => {
-          const newTime = prev - 1;
-          if (newTime <= 0) {
-            setIsRunning(false);
-            setIsPaused(false);
-            setShowCompletionModal(true);
-            return 0;
-          }
-          return newTime;
-        });
+        if (mode === 'timer') {
+          setTimeLeft(prev => {
+            const newTime = prev - 1;
+            if (newTime <= 0) {
+              setIsRunning(false);
+              setIsPaused(false);
+              setShowCompletionModal(true);
+              return 0;
+            }
+            return newTime;
+          });
+        } else {
+          // 스탑워치 모드
+          setElapsedTime(prev => prev + 1);
+        }
       }, 1000);
     }
 
@@ -526,40 +597,67 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
         clearInterval(interval);
       }
     };
-  }, [isRunning, isPaused, timeLeft]);
+  }, [isRunning, isPaused, timeLeft, mode]);
 
   // 타이머가 0이 되었을 때 즉시 모달 표시
   useEffect(() => {
-    if (timeLeft === 0 && isRunning) {
+    if (timeLeft === 0 && isRunning && mode === 'timer') {
       setIsRunning(false);
       setIsPaused(false);
       setShowCompletionModal(true);
     }
-  }, [timeLeft, isRunning]);
+  }, [timeLeft, isRunning, mode]);
 
   if (!isRunning && !showCompletionModal) {
     return (
       <TimerContainer>
         <TimerCard>
           <h2>오늘의 독서 시작하기</h2>
-          <p>독서할 시간을 선택해주세요</p>
+          <p>독서 모드를 선택해주세요</p>
           
-          <TimeSelectionContainer>
-            <TimeOptions>
-              {timeOptions.map(time => (
-                <TimeOption
-                  key={time}
-                  selected={selectedTime === time}
-                  onClick={() => handleTimeOptionClick(time)}
-                >
-                  {time}분
-                </TimeOption>
-              ))}
-            </TimeOptions>
-          </TimeSelectionContainer>
+          <ModeSelectionContainer>
+            <ModeOptions>
+              <ModeOption
+                selected={mode === 'timer'}
+                onClick={() => handleModeChange('timer')}
+              >
+                ⏰ 타이머
+              </ModeOption>
+              <ModeOption
+                selected={mode === 'stopwatch'}
+                onClick={() => handleModeChange('stopwatch')}
+              >
+                ⏱️ 스탑워치
+              </ModeOption>
+            </ModeOptions>
+            
+            <ModeDescription>
+              {mode === 'timer' 
+                ? '정해진 시간 동안 독서를 진행합니다. 시간이 끝나면 자동으로 완료됩니다.'
+                : '원하는 만큼 자유롭게 독서를 진행합니다. 언제든지 멈출 수 있습니다.'
+              }
+            </ModeDescription>
+          </ModeSelectionContainer>
+
+          {mode === 'timer' && (
+            <TimeSelectionContainer>
+              <p>독서할 시간을 선택해주세요</p>
+              <TimeOptions>
+                {timeOptions.map(time => (
+                  <TimeOption
+                    key={time}
+                    selected={selectedTime === time}
+                    onClick={() => handleTimeOptionClick(time)}
+                  >
+                    {time}분
+                  </TimeOption>
+                ))}
+              </TimeOptions>
+            </TimeSelectionContainer>
+          )}
 
           <Button onClick={startTimer} variant="primary">
-            독서 시작하기
+            {mode === 'timer' ? '독서 시작하기' : '스탑워치 시작'}
           </Button>
         </TimerCard>
       </TimerContainer>
@@ -570,19 +668,21 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
     <>
       <TimerContainer>
         <TimerCard>
-          <h2>독서 타이머</h2>
+          <h2>{mode === 'timer' ? '독서 타이머' : '독서 스탑워치'}</h2>
           
           <TimerDisplay>
-            {formatTime(timeLeft)}
+            {mode === 'timer' ? formatTime(timeLeft) : formatTime(elapsedTime)}
           </TimerDisplay>
           
           <TimerStatus>
-            {isPaused ? '일시정지됨' : '독서 중...'}
+            {isPaused ? '일시정지됨' : mode === 'timer' ? '독서 중...' : '독서 진행 중...'}
           </TimerStatus>
           
-          <ProgressBar>
-            <ProgressFill progress={getProgress()} />
-          </ProgressBar>
+          {mode === 'timer' && (
+            <ProgressBar>
+              <ProgressFill progress={getProgress()} />
+            </ProgressBar>
+          )}
           
           <ButtonGroup>
             {isPaused ? (
@@ -595,7 +695,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
               </Button>
             )}
             <Button onClick={resetTimer} variant="danger">
-              종료
+              {mode === 'timer' ? '종료' : '기록 완료'}
             </Button>
           </ButtonGroup>
         </TimerCard>
@@ -609,7 +709,12 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
               <span>독서 완료!</span>
             </CompletionTitle>
             <CompletionMessage>
-              <strong>{selectedTime}분</strong> 동안의 소중한 독서 시간을 완료하셨습니다!<br />
+              <strong>
+                {mode === 'timer' 
+                  ? `${selectedTime}분` 
+                  : `${Math.floor(elapsedTime / 60)}분 ${elapsedTime % 60}초`
+                }
+              </strong> 동안의 소중한 독서 시간을 완료하셨습니다!<br />
               {selectedBook ? `"${selectedBook.title}"` : '오늘의 독서'}에 대한 기록을 캘린더에 남겨보세요.
             </CompletionMessage>
             
@@ -639,6 +744,7 @@ const ReadingTimer: React.FC<ReadingTimerProps> = ({ onComplete, selectedBook })
                   setShowCompletionModal(false);
                   setCompletionNotes('');
                   setTimeLeft(0);
+                  setElapsedTime(0);
                   setIsRunning(false);
                   setIsPaused(false);
                   onComplete?.();

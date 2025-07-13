@@ -14,6 +14,28 @@ export interface ReadingRecord {
   categories?: string[];
 }
 
+export interface ReadingRecordResponse {
+  success: boolean;
+  message: string;
+  data?: ReadingRecord;
+}
+
+export interface BookData {
+  title: string;
+  author: string;
+  description: string;
+}
+
+export interface BookResponse {
+  success: boolean;
+  book?: {
+    id: number;
+    title: string;
+    author: string;
+  };
+  error?: string;
+}
+
 export interface ReadingCompletion {
   id: number;
   date: string; // YYYY-MM-DD 형식
