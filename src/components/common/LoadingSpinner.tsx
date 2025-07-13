@@ -7,20 +7,54 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
-const SpinnerContainer = styled.div`
+const SpinnerContainer = styled.div<{ fullScreen?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: ${theme.spacing.xl};
   gap: ${theme.spacing.md};
+  
+  ${({ fullScreen }) => fullScreen && `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+  `}
 `;
 
-const Spinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 4px solid ${theme.colors.background.light};
-  border-top: 4px solid ${theme.colors.primary};
+const Spinner = styled.div<{ size: 'sm' | 'md' | 'lg'; color?: string }>`
+  width: ${({ size }) => {
+    switch (size) {
+      case 'sm': return '24px';
+      case 'lg': return '60px';
+      default: return '40px';
+    }
+  }};
+  height: ${({ size }) => {
+    switch (size) {
+      case 'sm': return '24px';
+      case 'lg': return '60px';
+      default: return '40px';
+    }
+  }};
+  border: ${({ size }) => {
+    switch (size) {
+      case 'sm': return '2px';
+      case 'lg': return '6px';
+      default: return '4px';
+    }
+  }} solid ${theme.colors.background.light};
+  border-top: ${({ size }) => {
+    switch (size) {
+      case 'sm': return '2px';
+      case 'lg': return '6px';
+      default: return '4px';
+    }
+  }} solid ${({ color }) => color || theme.colors.primary};
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
 `;
@@ -33,12 +67,20 @@ const LoadingText = styled.p`
 
 interface LoadingSpinnerProps {
   text?: string;
+  size?: 'sm' | 'md' | 'lg';
+  fullScreen?: boolean;
+  color?: string;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ text = '로딩 중...' }) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+  text = '로딩 중...',
+  size = 'md',
+  fullScreen = false,
+  color
+}) => {
   return (
-    <SpinnerContainer>
-      <Spinner />
+    <SpinnerContainer fullScreen={fullScreen}>
+      <Spinner size={size} color={color} />
       <LoadingText>{text}</LoadingText>
     </SpinnerContainer>
   );

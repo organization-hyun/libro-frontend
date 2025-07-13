@@ -1,102 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { theme } from '../../styles/theme';
 import { Modal } from './Modal';
+import { Input, TextArea, Button, Form, FormGroup, Label, ErrorMessage, ButtonGroup } from './index';
 
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.md};
-`;
 
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.spacing.xs};
-`;
 
-const Label = styled.label`
-  font-weight: 600;
-  color: ${theme.colors.text.primary};
-  font-size: 0.9rem;
-`;
 
-const Input = styled.input`
-  padding: ${theme.spacing.sm};
-  border: 2px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.sm};
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.primary};
-  }
-`;
 
-const TextArea = styled.textarea`
-  padding: ${theme.spacing.sm};
-  border: 2px solid ${theme.colors.border};
-  border-radius: ${theme.borderRadius.sm};
-  font-size: 1rem;
-  min-height: 100px;
-  resize: vertical;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: ${theme.colors.primary};
-  }
-`;
 
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: ${theme.spacing.sm};
-  margin-top: ${theme.spacing.md};
-`;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: ${theme.spacing.sm} ${theme.spacing.lg};
-  border: none;
-  border-radius: ${theme.borderRadius.sm};
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
 
-  ${({ variant }) =>
-    variant === 'primary'
-      ? `
-    background: ${theme.colors.primary};
-    color: white;
-    
-    &:hover {
-      background: ${theme.colors.primaryDark};
-    }
-    
-    &:disabled {
-      background: ${theme.colors.border};
-      cursor: not-allowed;
-    }
-  `
-      : `
-    background: ${theme.colors.background.white};
-    color: ${theme.colors.text.primary};
-    border: 2px solid ${theme.colors.border};
-    
-    &:hover {
-      border-color: ${theme.colors.text.secondary};
-    }
-  `}
-`;
 
-const ErrorMessage = styled.div`
-  color: ${theme.colors.error};
-  font-size: 0.9rem;
-  margin-top: ${theme.spacing.xs};
-`;
+
 
 interface AddBookFormProps {
   isOpen: boolean;
@@ -173,7 +89,7 @@ const AddBookForm: React.FC<AddBookFormProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title="새 책 추가하기">
       <Form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label htmlFor="title">책 제목 *</Label>
+          <Label htmlFor="title" required>책 제목</Label>
           <Input
             id="title"
             name="title"
@@ -187,7 +103,7 @@ const AddBookForm: React.FC<AddBookFormProps> = ({
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="author">저자 *</Label>
+          <Label htmlFor="author" required>저자</Label>
           <Input
             id="author"
             name="author"
@@ -201,7 +117,7 @@ const AddBookForm: React.FC<AddBookFormProps> = ({
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="description">책 설명 *</Label>
+          <Label htmlFor="description" required>책 설명</Label>
           <TextArea
             id="description"
             name="description"
@@ -214,10 +130,10 @@ const AddBookForm: React.FC<AddBookFormProps> = ({
         </FormGroup>
 
         <ButtonGroup>
-          <Button type="button" onClick={handleClose} disabled={isLoading}>
+          <Button type="button" onClick={handleClose} disabled={isLoading} fullWidth>
             취소
           </Button>
-          <Button type="submit" variant="primary" disabled={isLoading}>
+          <Button type="submit" variant="primary" disabled={isLoading} fullWidth>
             {isLoading ? '추가 중...' : '책 추가하기'}
           </Button>
         </ButtonGroup>

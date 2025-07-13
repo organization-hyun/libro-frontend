@@ -14,12 +14,6 @@ export const booksApi = {
     return response.data;
   },
 
-  // 인기 책 조회
-  getPopularBooks: async (): Promise<Book[]> => {
-    const response = await api.get('/books/popular');
-    return response.data;
-  },
-
   // 새 책 추가
   addBook: async (bookData: {
     title: string;

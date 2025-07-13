@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { theme } from '../styles/theme';
 import { Modal } from '../components/common/Modal';
+import ReadingCalendar from '../components/reading/ReadingCalendar';
 import api from '@/api/apiClient';
 
 const Container = styled.div`
@@ -272,7 +273,28 @@ const LoadingContainer = styled.div`
   gap: ${theme.spacing.sm};
 `;
 
+const TabContainer = styled.div`
+  margin-bottom: ${theme.spacing.xl};
+`;
+
+const TabButton = styled.button<{ active: boolean }>`
+  padding: ${theme.spacing.md} ${theme.spacing.lg};
+  border: none;
+  background: ${props => props.active ? theme.colors.primary : theme.colors.background.light};
+  color: ${props => props.active ? 'white' : theme.colors.text.primary};
+  border-radius: ${theme.borderRadius.md};
+  font-weight: 600;
+  cursor: pointer;
+  transition: all ${theme.transitions.default};
+  margin-right: ${theme.spacing.sm};
+
+  &:hover {
+    background: ${props => props.active ? theme.colors.primaryDark : theme.colors.background.main};
+  }
+`;
+
 const ReadingRecordPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'books' | 'calendar'>('books');
   const navigate = useNavigate();
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [readingRecords, setReadingRecords] = useState<ReadingRecord[]>([]);
@@ -403,19 +425,40 @@ const ReadingRecordPage: React.FC = () => {
         <Title>독서 기록</Title>
       </Header>
 
-      <BookGrid>
-        {readingRecords.map((readingRecord) => (
-          <BookCard key={readingRecord.id} onClick={() => handleBookClick(readingRecord.id)}>
-            <DeleteButton onClick={(e) => handleDeleteBook(readingRecord.id, readingRecord.bookTitle, e)}>×</DeleteButton>
-            <BookTitle>{readingRecord.bookTitle}</BookTitle>
-            <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>
-          </BookCard>
-        ))}
-        <AddBookCard onClick={() => setIsAddBookModalOpen(true)}>
-          <PlusIcon>+</PlusIcon>
-          <AddBookText>새로운 책 추가</AddBookText>
-        </AddBookCard>
-      </BookGrid>
+      <TabContainer>
+        <TabButton 
+          active={activeTab === 'books'} 
+          onClick={() => setActiveTab('books')}
+        >
+          내 책장
+        </TabButton>
+        <TabButton 
+          active={activeTab === 'calendar'} 
+          onClick={() => setActiveTab('calendar')}
+        >
+          독서 캘린더
+        </TabButton>
+      </TabContainer>
+
+      {activeTab === 'books' && (
+        <BookGrid>
+          {readingRecords.map((readingRecord) => (
+            <BookCard key={readingRecord.id} onClick={() => handleBookClick(readingRecord.id)}>
+              <DeleteButton onClick={(e) => handleDeleteBook(readingRecord.id, readingRecord.bookTitle, e)}>×</DeleteButton>
+              <BookTitle>{readingRecord.bookTitle}</BookTitle>
+              <BookAuthor>{readingRecord.bookAuthor}</BookAuthor>
+            </BookCard>
+          ))}
+          <AddBookCard onClick={() => setIsAddBookModalOpen(true)}>
+            <PlusIcon>+</PlusIcon>
+            <AddBookText>새로운 책 추가</AddBookText>
+          </AddBookCard>
+        </BookGrid>
+      )}
+
+      {activeTab === 'calendar' && (
+        <ReadingCalendar />
+      )}
 
       <Modal
         isOpen={isAddBookModalOpen}
