@@ -5,6 +5,7 @@ import { theme } from '../styles/theme';
 import { BookDetail } from '../types/book';
 import { booksApi } from '../api/books';
 import { LoadingSpinner, BackButton, Button } from '../components/common';
+import {userBookApi} from "@api/userBookApi";
 
 const Container = styled.div`
   padding: ${theme.spacing.lg};
@@ -222,9 +223,20 @@ const BookDetailPage: React.FC = () => {
 
   const [isWish, setIsWish] = useState(false);
 
-  const toggleWish = () => {
-    setIsWish(prev => !prev);
+  const toggleWish = async () => {
+    if (!bookId) return;
+
+    const newWish = !isWish;
+    setIsWish(newWish); // optimistic update
+
+    try {
+      await userBookApi.setWish(Number(bookId), newWish);
+    } catch (err) {
+      console.error('Failed to update wish state:', err);
+      setIsWish(!newWish); // rollback on error
+    }
   };
+
 const [isWatching, setIsWatching] = useState(false);
 
   const toggleWatching = () => {
